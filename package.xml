@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>libfranka</name>
+  <version>0.1.0</version>
+  <description>libfranka is a C++ library for Franka Emika research robots</description>
+  <maintainer email="info@franka.de">Franka Emika GmbH</maintainer>
+  <license>Apache 2.0</license>
+
+  <url type="website">https://frankaemika.github.io</url>
+  <url type="repository">https://github.com/frankaemika/libfranka</url>
+  <url type="bugtracker">https://github.com/frankaemika/libfranka/issues</url>
+  <author>Franka Emika GmbH</author>
+
+  <buildtool_depend>cmake</buildtool_depend>
+
+  <build_depend>doxygen</build_depend>
+  <build_depend>libpoco-dev</build_depend>
+  <exec_depend>catkin</exec_depend>
+  <exec_depend>libpoco-dev</exec_depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>
