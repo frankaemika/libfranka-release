@@ -1,0 +1,26 @@
+From 621f6aeb9547379979a71eb14b87703eea73d28e Mon Sep 17 00:00:00 2001
+From: Florian Walch <florian.walch@franka.de>
+Date: Wed, 27 Sep 2017 17:33:12 +0200
+Subject: [PATCH] Added install rule for package.xml
+
+---
+ CMakeLists.txt | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 954e943..0dabde9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -114,6 +114,9 @@ install(EXPORT FrankaTargets
+   DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
+ )
+ 
++# Install catkin package.xml
++install(FILES package.xml DESTINATION share/libfranka)
++
+ ## Subprojects
+ 
+ # Ignore find_package(Franka) in subprojects.
+-- 
+2.7.4
+
