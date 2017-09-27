@@ -124,6 +124,9 @@ install(EXPORT FrankaTargets
   DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
 )
 
+# Install catkin package.xml
+install(FILES package.xml DESTINATION share/libfranka)
+
 ## Subprojects
 
 # Ignore find_package(Franka) in subprojects.
