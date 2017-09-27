@@ -1,0 +1,28 @@
+From f401efdfadb632c9acd4d1a8f79456f3e2f73976 Mon Sep 17 00:00:00 2001
+From: Florian Walch <florian.walch@franka.de>
+Date: Wed, 27 Sep 2017 17:34:04 +0200
+Subject: [PATCH] Customized Debian rules file
+
+---
+ debian/rules.em | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/debian/rules.em b/debian/rules.em
+index 991c991..5643f36 100755
+--- a/debian/rules.em
++++ b/debian/rules.em
+@@ -30,7 +30,10 @@ override_dh_auto_configure:
+ 	dh_auto_configure -- \
+ 		-DCATKIN_BUILD_BINARY_PACKAGE="1" \
+ 		-DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
+-		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)"
++		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
++		-DBUILD_DOCUMENTATION=ON \
++		-DBUILD_EXAMPLES=OFF \
++		-DBUILD_TESTS=OFF
+ 
+ override_dh_auto_build:
+ 	# In case we're installing to a non-standard location, look for a setup.sh
+-- 
+2.7.4
+
