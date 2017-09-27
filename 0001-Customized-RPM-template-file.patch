@@ -1,0 +1,26 @@
+From 7a871a81244a6b08287fd6d41097860fa90011c0 Mon Sep 17 00:00:00 2001
+From: Florian Walch <florian.walch@franka.de>
+Date: Wed, 27 Sep 2017 17:34:44 +0200
+Subject: [PATCH] Customized RPM template file
+
+---
+ rpm/template.spec.em | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/rpm/template.spec.em b/rpm/template.spec.em
+index a65a2a8..d8e9868 100644
+--- a/rpm/template.spec.em
++++ b/rpm/template.spec.em
+@@ -29,6 +29,9 @@ mkdir -p obj-%{_target_platform} && cd obj-%{_target_platform}
+         -DCMAKE_INSTALL_LIBDIR="lib" \
+         -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
+         -DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
++        -DBUILD_DOCUMENTATION=ON \
++        -DBUILD_EXAMPLES=OFF \
++        -DBUILD_TESTS=OFF \
+         -DSETUPTOOLS_DEB_LAYOUT=OFF \
+         -DCATKIN_BUILD_BINARY_PACKAGE="1" \
+ 
+-- 
+2.7.4
+
