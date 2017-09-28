@@ -1,0 +1,25 @@
+From d798d396607b581083bad4298d9513cf8d7653a2 Mon Sep 17 00:00:00 2001
+From: Florian Walch <florian.walch@franka.de>
+Date: Thu, 28 Sep 2017 10:35:57 +0200
+Subject: [PATCH 2/2] Enable tests
+
+---
+ debian/rules.em | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/debian/rules.em b/debian/rules.em
+index 5643f36..6c3eb0a 100755
+--- a/debian/rules.em
++++ b/debian/rules.em
+@@ -33,7 +33,7 @@ override_dh_auto_configure:
+ 		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
+ 		-DBUILD_DOCUMENTATION=ON \
+ 		-DBUILD_EXAMPLES=OFF \
+-		-DBUILD_TESTS=OFF
++		-DBUILD_TESTS=ON
+ 
+ override_dh_auto_build:
+ 	# In case we're installing to a non-standard location, look for a setup.sh
+-- 
+2.7.4
+
