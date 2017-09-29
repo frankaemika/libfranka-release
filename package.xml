@@ -14,7 +14,9 @@
   <buildtool_depend>cmake</buildtool_depend>
 
   <build_depend>doxygen</build_depend>
+  <build_depend>graphviz</build_depend>
   <build_depend>libpoco-dev</build_depend>
+
   <exec_depend>catkin</exec_depend>
   <exec_depend>libpoco-dev</exec_depend>
 
