@@ -31,7 +31,7 @@ override_dh_auto_configure:
 		-DCATKIN_BUILD_BINARY_PACKAGE="1" \
 		-DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
 		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
-		-DBUILD_DOCUMENTATION=ON \
+		-DBUILD_DOCUMENTATION=OFF \
 		-DBUILD_EXAMPLES=OFF \
 		-DBUILD_TESTS=ON
 
