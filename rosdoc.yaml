@@ -1,0 +1,4 @@
+- builder: doxygen
+  exclude_patterns: "*/common/* */examples/* */src/* */test/*"
+  file_patterns: "*.h *.dox"
+  javadoc_autobrief: YES
