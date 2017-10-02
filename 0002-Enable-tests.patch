@@ -1,7 +1,7 @@
-From 6c743b181a337011f826811ade375287b1e26a6f Mon Sep 17 00:00:00 2001
+From 320c2723b45059051e8b4623b2a200f1a8cd74e6 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Thu, 28 Sep 2017 10:35:57 +0200
-Subject: [PATCH 2/2] Enable tests
+Subject: [PATCH 2/3] Enable tests
 
 ---
  debian/rules.em | 2 +-
