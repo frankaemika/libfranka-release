@@ -3,7 +3,7 @@
   <name>libfranka</name>
   <version>:{version}</version>
   <description>libfranka is a C++ library for Franka Emika research robots</description>
-  <maintainer email="info@franka.de">Franka Emika GmbH</maintainer>
+  <maintainer email="support@franka.de">Franka Emika GmbH</maintainer>
   <license>Apache 2.0</license>
 
   <url type="website">https://frankaemika.github.io</url>
