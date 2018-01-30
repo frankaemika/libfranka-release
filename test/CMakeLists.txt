@@ -8,7 +8,15 @@ set(GTEST_LIBRARIES gtest gmock gmock_main)
 include(SetupGoogleTest)
 
 set(TEST_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test_results)
-set(TEST_DEPENDENCIES franka libfranka-common ${GTEST_LIBRARIES})
+set(TEST_DEPENDENCIES
+  ${GTEST_LIBRARIES}
+  Poco::Foundation
+  Poco::Net
+  Eigen3::Eigen3
+  Threads::Threads
+  franka
+  libfranka-common
+)
 set(TEST_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src)
 
 ## Test libraries
@@ -23,6 +31,7 @@ list(APPEND TEST_DEPENDENCIES fcimodels)
 
 ## Test runner
 add_executable(run_all_tests
+  calculations_tests.cpp
   control_loop_tests.cpp
   control_types_tests.cpp
   duration_tests.cpp
@@ -30,6 +39,7 @@ add_executable(run_all_tests
   gripper_command_tests.cpp
   gripper_tests.cpp
   helpers.cpp
+  logger_tests.cpp
   mock_server.cpp
   model_tests.cpp
   robot_command_tests.cpp
