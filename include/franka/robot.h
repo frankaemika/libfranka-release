@@ -23,18 +23,18 @@ class Model;
 
 /**
  * Maintains a network connection to the robot, provides the current robot state, gives access to
- * the model library and allows to execute commands, motions, and torque control.
+ * the model library and allows to control the robot.
  *
  * @note
  * The members of this class are threadsafe.
  *
- * @par End effector frame
+ * @par End effector frame EE
  * While the end effector parameters are set in a configuration file, it is possible to change the
  * end effector frame with Robot::setEE.
  *
- * @par K frame
- * The K frame is used for Cartesian impedance control and measuring forces and torques. It can be
- * set with Robot::setK.
+ * @par Stiffness frame K
+ * The stiffness frame is used for Cartesian impedance control and measuring forces and torques.
+ * It can be set with Robot::setK.
  */
 class Robot {
  public:
@@ -49,12 +49,15 @@ class Robot {
    * @param[in] franka_address IP/hostname of the robot.
    * @param[in] realtime_config if set to Enforce, an exception will be thrown if realtime priority
    * cannot be set when required. Setting realtime_config to Ignore disables this behavior.
+   * @param[in] log_size sets how many last states should be kept for logging purposes.
+   * The log is provided when a ControlException is thrown.
    *
    * @throw NetworkException if the connection is unsuccessful.
    * @throw IncompatibleVersionException if this version of `libfranka` is not supported.
    */
   explicit Robot(const std::string& franka_address,
-                 RealtimeConfig realtime_config = RealtimeConfig::kEnforce);
+                 RealtimeConfig realtime_config = RealtimeConfig::kEnforce,
+                 size_t log_size = 50);
 
   /**
    * Move-constructs a new Robot instance.
@@ -78,10 +81,10 @@ class Robot {
   ~Robot() noexcept;
 
   /**
-   * @name Motion generation and torque control
+   * @name Motion generation and joint-level torque commands
    *
-   * The following methods allow to perform torque control and/or motion generation by providing
-   * callback functions.
+   * The following methods allow to perform motion generation and/or send joint-level torque
+   * commands without gravity and friction by providing callback functions.
    *
    * Only one of these methods can be active at the same time; a franka::ControlException is thrown
    * otherwise.
@@ -115,13 +118,13 @@ class Robot {
    */
 
   /**
-   * Starts a control loop for torque control.
+   * Starts a control loop for sending joint-level torque commands.
    *
    * Sets realtime priority for the current thread.
    * Cannot be executed while another control or motion generator loop is active.
    *
-   * @param[in] control_callback Callback function for torque control. See @ref callback-docs "here"
-   * for more details.
+   * @param[in] control_callback Callback function providing joint-level torque commands.
+   * See @ref callback-docs "here" for more details.
    *
    * @throw ControlException if an error related to torque control or motion generation occurred.
    * @throw InvalidOperationException if a conflicting operation is already running.
@@ -133,13 +136,13 @@ class Robot {
   void control(std::function<Torques(const RobotState&, franka::Duration)> control_callback);
 
   /**
-   * Starts a control loop for a joint position motion generator with torque control.
+   * Starts a control loop for sending joint-level torque commands and joint positions.
    *
    * Sets realtime priority for the current thread.
    * Cannot be executed while another control or motion generator loop is active.
    *
-   * @param[in] control_callback Callback function for torque control. See @ref callback-docs "here"
-   * for more details.
+   * @param[in] control_callback Callback function providing joint-level torque commands.
+   * See @ref callback-docs "here" for more details.
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
    *
@@ -155,13 +158,13 @@ class Robot {
       std::function<JointPositions(const RobotState&, franka::Duration)> motion_generator_callback);
 
   /**
-   * Starts a control loop for a joint velocity motion generator with torque control.
+   * Starts a control loop for sending joint-level torque commands and joint velocities.
    *
    * Sets realtime priority for the current thread.
    * Cannot be executed while another control or motion generator loop is active.
    *
-   * @param[in] control_callback Callback function for torque control. See @ref callback-docs "here"
-   * for more details.
+   * @param[in] control_callback Callback function providing joint-level torque commands.
+   * See @ref callback-docs "here" for more details.
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
    *
@@ -177,13 +180,13 @@ class Robot {
                    motion_generator_callback);
 
   /**
-   * Starts a control loop for a Cartesian pose motion generator with torque control.
+   * Starts a control loop for sending joint-level torque commands and Cartesian poses.
    *
    * Sets realtime priority for the current thread.
    * Cannot be executed while another control or motion generator loop is active.
    *
-   * @param[in] control_callback Callback function for torque control. See @ref callback-docs "here"
-   * for more details.
+   * @param[in] control_callback Callback function providing joint-level torque commands.
+   * See @ref callback-docs "here" for more details.
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
    *
@@ -199,13 +202,13 @@ class Robot {
       std::function<CartesianPose(const RobotState&, franka::Duration)> motion_generator_callback);
 
   /**
-   * Starts a control loop for a Cartesian velocity motion generator with torque control.
+   * Starts a control loop for sending joint-level torque commands and Cartesian velocities.
    *
    * Sets realtime priority for the current thread.
    * Cannot be executed while another control or motion generator loop is active.
    *
-   * @param[in] control_callback Callback function for torque control. See @ref callback-docs "here"
-   * for more details.
+   * @param[in] control_callback Callback function providing joint-level torque commands.
+   * See @ref callback-docs "here" for more details.
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
    *
@@ -457,7 +460,7 @@ class Robot {
   void setGuidingMode(const std::array<bool, 6>& guiding_mode, bool elbow);
 
   /**
-   * Sets the transformation \f$^{EE}T_K\f$ from end effector to K frame.
+   * Sets the transformation \f$^{EE}T_K\f$ from end effector frame to stiffness frame.
    *
    * The transformation matrix is represented as a vectorized 4x4 matrix in column-major format.
    *
@@ -465,7 +468,7 @@ class Robot {
    *
    * @throw CommandException if an error occurred.
    *
-   * @see Robot for an explanation of the K frame.
+   * @see Robot for an explanation of the stiffness frame.
    */
   void setK(const std::array<double, 16>& EE_T_K);  // NOLINT (readability-identifier-naming)
 
@@ -501,6 +504,30 @@ class Robot {
                const std::array<double, 3>& F_x_Cload,  // NOLINT (readability-identifier-naming)
                const std::array<double, 9>& load_inertia);
 
+  /**
+   * Sets the cut off frequency for the given motion generator or controller.
+   * Allowed input range for all the filters is between 1.0 Hz and 1000.0 Hz.
+   * If the value is set to maximum (1000Hz) then no filtering is done.
+   * Default value of all filters is 100Hz.
+   *
+   * @param[in] joint_position_filter_frequency Frequency at which the commanded joint
+   * position is cut off.
+   * @param[in] joint_velocity_filter_frequency Frequency at which the commanded joint
+   * velocity is cut off.
+   * @param[in] cartesian_position_filter_frequency Frequency at which the commanded
+   * Cartesian position is cut off.
+   * @param[in] cartesian_velocity_filter_frequency Frequency at which the commanded
+   * Cartesian velocity is cut off.
+   * @param[in] controller_filter_frequency Frequency at which the commanded torque is cut
+   * off.
+   *
+   * @throw CommandException if an error occurred.
+   */
+  void setFilters(double joint_position_filter_frequency,
+                  double joint_velocity_filter_frequency,
+                  double cartesian_position_filter_frequency,
+                  double cartesian_velocity_filter_frequency,
+                  double controller_filter_frequency);
   /**
    * Runs automatic error recovery on the robot.
    *

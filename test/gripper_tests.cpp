@@ -1,9 +1,9 @@
 // Copyright (c) 2017 Franka Emika GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
-#include <gmock/gmock.h>
-
 #include <atomic>
 #include <functional>
+
+#include <gmock/gmock.h>
 
 #include <franka/exception.h>
 #include <franka/gripper.h>
@@ -31,7 +31,7 @@ TEST(Gripper, CanPerformHandshake) {
   GripperMockServer server;
 
   Gripper gripper("127.0.0.1");
-  EXPECT_EQ(1, gripper.serverVersion());
+  EXPECT_EQ(research_interface::gripper::kVersion, gripper.serverVersion());
 }
 
 TEST(Gripper, ThrowsOnIncompatibleLibraryVersion) {
