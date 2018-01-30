@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <gmock/gmock.h>
+#include <Eigen/Core>
 
 #include <franka/exception.h>
 #include <franka/model.h>
@@ -64,22 +65,23 @@ struct Model : public ::testing::Test {
     std::ifstream model_library_stream(
         FRANKA_TEST_BINARY_DIR + "/libfcimodels.so"s,
         std::ios_base::in | std::ios_base::binary | std::ios_base::ate);
-    buffer_.resize(model_library_stream.tellg());
+    std::vector<char> buffer;
+    buffer.resize(model_library_stream.tellg());
     model_library_stream.seekg(0, std::ios::beg);
-    if (!model_library_stream.read(buffer_.data(), buffer_.size())) {
+    if (!model_library_stream.read(buffer.data(), buffer.size())) {
       throw std::runtime_error("Model test: Cannot load mock libfcimodels.so");
     }
 
     server
-        .generic([&](decltype(server)::Socket& tcp_socket, decltype(server)::Socket&) {
+        .generic([=](decltype(server)::Socket& tcp_socket, decltype(server)::Socket&) {
           CommandHeader header;
           server.receiveRequest<LoadModelLibrary>(tcp_socket, &header);
           server.sendResponse<LoadModelLibrary>(
               tcp_socket,
               CommandHeader(Command::kLoadModelLibrary, header.command_id,
-                            sizeof(CommandMessage<LoadModelLibrary::Response>) + buffer_.size()),
+                            sizeof(CommandMessage<LoadModelLibrary::Response>) + buffer.size()),
               LoadModelLibrary::Response(LoadModelLibrary::Status::kSuccess));
-          tcp_socket.sendBytes(buffer_.data(), buffer_.size());
+          tcp_socket.sendBytes(buffer.data(), buffer.size());
         })
         .spinOnce();
 
@@ -88,9 +90,6 @@ struct Model : public ::testing::Test {
 
   RobotMockServer server{};
   franka::Robot robot{"127.0.0.1"};
-
- private:
-  std::vector<char> buffer_;
 };
 
 TEST(InvalidModel, ThrowsIfNoModelReceived) {
@@ -134,12 +133,13 @@ TEST_F(Model, CanCreateModel) {
 TEST_F(Model, CanGetMassMatrix) {
   franka::RobotState robot_state;
   randomRobotState(robot_state);
-  std::array<double, 9> load_inertia{0, 1, 2, 3, 4, 5, 6, 7, 8};
-  double load_mass = 0.75;
-  std::array<double, 3> F_x_Cload{9, 10, 11};
+  std::array<double, 9> total_inertia{0, 1, 2, 3, 4, 5, 6, 7, 8};
+  double total_mass = 0.75;
+  std::array<double, 3> F_x_Ctotal{9, 10, 11};
 
   MockModel mock;
-  EXPECT_CALL(mock, M_NE(robot_state.q.data(), load_inertia.data(), load_mass, F_x_Cload.data(), _))
+  EXPECT_CALL(mock,
+              M_NE(robot_state.q.data(), total_inertia.data(), total_mass, F_x_Ctotal.data(), _))
       .WillOnce(WithArgs<4>(Invoke([=](double* output) {
         for (size_t i = 0; i < 49; i++) {
           output[i] = i;
@@ -149,7 +149,7 @@ TEST_F(Model, CanGetMassMatrix) {
   model_library_interface = &mock;
 
   franka::Model model(robot.loadModel());
-  auto matrix = model.mass(robot_state, load_inertia, load_mass, F_x_Cload);
+  auto matrix = model.mass(robot_state, total_inertia, total_mass, F_x_Ctotal);
   for (size_t i = 0; i < matrix.size(); i++) {
     EXPECT_EQ(i, matrix[i]);
   }
@@ -158,14 +158,14 @@ TEST_F(Model, CanGetMassMatrix) {
 TEST_F(Model, CanGetCoriolisVector) {
   franka::RobotState robot_state;
   randomRobotState(robot_state);
-  std::array<double, 9> load_inertia{0, 1, 2, 3, 4, 5, 6, 7, 8};
-  double load_mass = 0.75;
-  std::array<double, 3> F_x_Cload{9, 10, 11};
+  std::array<double, 9> total_inertia{0, 1, 2, 3, 4, 5, 6, 7, 8};
+  double total_mass = 0.75;
+  std::array<double, 3> F_x_Ctotal{9, 10, 11};
   std::array<double, 7> expected_vector{12, 13, 14, 15, 16, 17, 18};
 
   MockModel mock;
-  EXPECT_CALL(mock, c_NE(robot_state.q.data(), robot_state.dq.data(), load_inertia.data(),
-                         load_mass, F_x_Cload.data(), _))
+  EXPECT_CALL(mock, c_NE(robot_state.q.data(), robot_state.dq.data(), total_inertia.data(),
+                         total_mass, F_x_Ctotal.data(), _))
       .WillOnce(WithArgs<5>(Invoke([=](double* output) {
         std::copy(expected_vector.cbegin(), expected_vector.cend(), output);
       })));
@@ -173,20 +173,20 @@ TEST_F(Model, CanGetCoriolisVector) {
   model_library_interface = &mock;
 
   franka::Model model(robot.loadModel());
-  auto vector = model.coriolis(robot_state, load_inertia, load_mass, F_x_Cload);
+  auto vector = model.coriolis(robot_state, total_inertia, total_mass, F_x_Ctotal);
   EXPECT_EQ(expected_vector, vector);
 }
 
 TEST_F(Model, CanGetGravity) {
   franka::RobotState robot_state;
   randomRobotState(robot_state);
-  double load_mass = 0.75;
-  std::array<double, 3> F_x_Cload{1, 2, 3};
+  double total_mass = 0.75;
+  std::array<double, 3> F_x_Ctotal{1, 2, 3};
   std::array<double, 3> gravity_earth{4, 5, 6};
 
   MockModel mock;
   EXPECT_CALL(mock,
-              g_NE(robot_state.q.data(), gravity_earth.data(), load_mass, F_x_Cload.data(), _))
+              g_NE(robot_state.q.data(), gravity_earth.data(), total_mass, F_x_Ctotal.data(), _))
       .WillOnce(WithArgs<4>(Invoke([=](double* output) {
         for (size_t i = 0; i < 7; i++) {
           output[i] = i;
@@ -196,7 +196,7 @@ TEST_F(Model, CanGetGravity) {
   model_library_interface = &mock;
 
   franka::Model model(robot.loadModel());
-  auto matrix = model.gravity(robot_state, load_mass, F_x_Cload, gravity_earth);
+  auto matrix = model.gravity(robot_state, total_mass, F_x_Ctotal, gravity_earth);
   for (size_t i = 0; i < matrix.size(); i++) {
     EXPECT_EQ(i, matrix[i]);
   }
@@ -241,6 +241,17 @@ TEST_F(Model, CanGetJointPoses) {
       .WillOnce(WithArgs<1>(Invoke([=](double* output) {
         std::copy(expected_pose.cbegin(), expected_pose.cend(), output);
       })));
+  EXPECT_CALL(mock, O_T_J9(robot_state.q.data(), _, _))
+      .WillOnce(WithArgs<1, 2>(Invoke([=](const double* input, double* output) {
+        std::array<double, 16> expected;
+        Eigen::Map<Eigen::Matrix4d>(expected.data(), 4, 4) =
+            (Eigen::Matrix4d(robot_state.F_T_EE.data()) *
+             Eigen::Matrix4d(robot_state.EE_T_K.data()));
+        std::array<double, 16> input_array;
+        std::copy(&input[0], &input[16], input_array.data());
+        EXPECT_EQ(expected, input_array);
+        std::copy(expected_pose.cbegin(), expected_pose.cend(), output);
+      })));
   EXPECT_CALL(mock, O_T_J9(robot_state.q.data(), robot_state.F_T_EE.data(), _))
       .WillOnce(WithArgs<2>(Invoke([=](double* output) {
         std::copy(expected_pose.cbegin(), expected_pose.cend(), output);
@@ -249,8 +260,7 @@ TEST_F(Model, CanGetJointPoses) {
   model_library_interface = &mock;
 
   franka::Model model(robot.loadModel());
-  for (franka::Frame joint = franka::Frame::kJoint1; joint <= franka::Frame::kEndEffector;
-       joint++) {
+  for (franka::Frame joint = franka::Frame::kJoint1; joint <= franka::Frame::kStiffness; joint++) {
     auto pose = model.pose(joint, robot_state);
     EXPECT_EQ(expected_pose, pose);
   }
@@ -298,6 +308,17 @@ TEST_F(Model, CanGetBodyJacobian) {
       .WillOnce(WithArgs<1>(Invoke([=](double* output) {
         std::copy(expected_jacobian.cbegin(), expected_jacobian.cend(), output);
       })));
+  EXPECT_CALL(mock, Ji_J_J9(robot_state.q.data(), _, _))
+      .WillOnce(WithArgs<1, 2>(Invoke([=](const double* input, double* output) {
+        std::array<double, 16> expected;
+        Eigen::Map<Eigen::Matrix4d>(expected.data(), 4, 4) =
+            (Eigen::Matrix4d(robot_state.F_T_EE.data()) *
+             Eigen::Matrix4d(robot_state.EE_T_K.data()));
+        std::array<double, 16> input_array;
+        std::copy(&input[0], &input[16], input_array.data());
+        EXPECT_EQ(expected, input_array);
+        std::copy(expected_jacobian.cbegin(), expected_jacobian.cend(), output);
+      })));
   EXPECT_CALL(mock, Ji_J_J9(robot_state.q.data(), robot_state.F_T_EE.data(), _))
       .WillOnce(WithArgs<2>(Invoke([=](double* output) {
         std::copy(expected_jacobian.cbegin(), expected_jacobian.cend(), output);
@@ -306,8 +327,7 @@ TEST_F(Model, CanGetBodyJacobian) {
   model_library_interface = &mock;
 
   franka::Model model(robot.loadModel());
-  for (franka::Frame joint = franka::Frame::kJoint1; joint <= franka::Frame::kEndEffector;
-       joint++) {
+  for (franka::Frame joint = franka::Frame::kJoint1; joint <= franka::Frame::kStiffness; joint++) {
     auto jacobian = model.bodyJacobian(joint, robot_state);
     EXPECT_EQ(expected_jacobian, jacobian);
   }
@@ -355,6 +375,17 @@ TEST_F(Model, CanGetZeroJacobian) {
       .WillOnce(WithArgs<1>(Invoke([=](double* output) {
         std::copy(expected_jacobian.cbegin(), expected_jacobian.cend(), output);
       })));
+  EXPECT_CALL(mock, O_J_J9(robot_state.q.data(), _, _))
+      .WillOnce(WithArgs<1, 2>(Invoke([=](const double* input, double* output) {
+        std::array<double, 16> expected;
+        Eigen::Map<Eigen::Matrix4d>(expected.data(), 4, 4) =
+            Eigen::Matrix4d(Eigen::Matrix4d(robot_state.F_T_EE.data()) *
+                            Eigen::Matrix4d(robot_state.EE_T_K.data()));
+        std::array<double, 16> input_array;
+        std::copy(&input[0], &input[16], input_array.data());
+        EXPECT_EQ(expected, input_array);
+        std::copy(expected_jacobian.cbegin(), expected_jacobian.cend(), output);
+      })));
   EXPECT_CALL(mock, O_J_J9(robot_state.q.data(), robot_state.F_T_EE.data(), _))
       .WillOnce(WithArgs<2>(Invoke([=](double* output) {
         std::copy(expected_jacobian.cbegin(), expected_jacobian.cend(), output);
@@ -363,8 +394,7 @@ TEST_F(Model, CanGetZeroJacobian) {
   model_library_interface = &mock;
 
   franka::Model model(robot.loadModel());
-  for (franka::Frame joint = franka::Frame::kJoint1; joint <= franka::Frame::kEndEffector;
-       joint++) {
+  for (franka::Frame joint = franka::Frame::kJoint1; joint <= franka::Frame::kStiffness; joint++) {
     auto jacobian = model.zeroJacobian(joint, robot_state);
     EXPECT_EQ(expected_jacobian, jacobian);
   }
