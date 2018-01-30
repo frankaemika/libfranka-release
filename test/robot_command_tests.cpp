@@ -10,6 +10,7 @@
 using franka::CommandException;
 using franka::IncompatibleVersionException;
 using franka::Network;
+using franka::ProtocolException;
 using franka::RealtimeConfig;
 using franka::Robot;
 using franka::RobotState;
@@ -24,6 +25,7 @@ using research_interface::robot::SetCartesianImpedance;
 using research_interface::robot::SetCollisionBehavior;
 using research_interface::robot::SetEEToK;
 using research_interface::robot::SetFToEE;
+using research_interface::robot::SetFilters;
 using research_interface::robot::SetGuidingMode;
 using research_interface::robot::SetJointImpedance;
 using research_interface::robot::SetLoad;
@@ -40,6 +42,13 @@ class Command : public ::testing::Test {
   bool compare(const typename T::Request& request_one, const typename T::Request& request_two);
   typename T::Response createResponse(const typename T::Request& request,
                                       const typename T::Status status);
+};
+
+template <typename T>
+class SetterCommand : public Command<T> {};
+
+class MoveCommand : public Command<research_interface::robot::Move>,
+                    public ::testing::WithParamInterface<research_interface::robot::Move::Status> {
 };
 
 template <typename T>
@@ -112,6 +121,20 @@ template <>
 bool Command<SetFToEE>::compare(const SetFToEE::Request& request_one,
                                 const SetFToEE::Request& request_two) {
   return request_one.F_T_EE == request_two.F_T_EE;
+}
+
+template <>
+bool Command<SetFilters>::compare(const SetFilters::Request& request_one,
+                                  const SetFilters::Request& request_two) {
+  return request_one.joint_position_filter_frequency ==
+             request_two.joint_position_filter_frequency &&
+         request_one.joint_velocity_filter_frequency ==
+             request_two.joint_velocity_filter_frequency &&
+         request_one.cartesian_position_filter_frequency ==
+             request_two.cartesian_position_filter_frequency &&
+         request_one.cartesian_velocity_filter_frequency ==
+             request_two.cartesian_velocity_filter_frequency &&
+         request_one.controller_filter_frequency == request_two.controller_filter_frequency;
 }
 
 template <>
@@ -194,6 +217,11 @@ SetFToEE::Request Command<SetFToEE>::getExpected() {
 }
 
 template <>
+SetFilters::Request Command<SetFilters>::getExpected() {
+  return SetFilters::Request(1, 10, 100, 100, 1000);
+}
+
+template <>
 SetLoad::Request Command<SetLoad>::getExpected() {
   double m_load = 1.5;
   std::array<double, 3> F_x_Cload{0.01, 0.01, 0.1};
@@ -226,9 +254,9 @@ template <>
 GetCartesianLimit::Response Command<GetCartesianLimit>::createResponse(
     const GetCartesianLimit::Request&,
     GetCartesianLimit::Status status) {
-  std::array<double, 3> object_p_min{-1, 1, 1}, object_p_max{2, 2, 2};
+  std::array<double, 3> object_world_size{2, 2, 2};
   std::array<double, 16> object_frame{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-  return GetCartesianLimit::Response(status, object_p_min, object_p_max, object_frame, true);
+  return GetCartesianLimit::Response(status, object_world_size, object_frame, true);
 }
 
 using CommandTypes = ::testing::Types<GetCartesianLimit,
@@ -239,6 +267,7 @@ using CommandTypes = ::testing::Types<GetCartesianLimit,
                                       SetEEToK,
                                       SetFToEE,
                                       SetLoad,
+                                      SetFilters,
                                       Move,
                                       StopMove,
                                       AutomaticErrorRecovery>;
@@ -248,7 +277,7 @@ TYPED_TEST_CASE(Command, CommandTypes);
 TYPED_TEST(Command, CanSendAndReceiveSuccess) {
   RobotMockServer server;
   Robot::Impl robot(
-      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort));
+      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort), 0);
 
   server
       .waitForCommand<typename TestFixture::TCommand>(
@@ -262,53 +291,118 @@ TYPED_TEST(Command, CanSendAndReceiveSuccess) {
   EXPECT_NO_THROW(TestFixture::executeCommand(robot));
 }
 
-TYPED_TEST(Command, CanSendAndReceiveAbort) {
-  RobotMockServer server;
-  Robot::Impl robot(
-      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort));
-
-  server
-      .waitForCommand<typename TestFixture::TCommand>(
-          [this](const typename TestFixture::TCommand::Request& request) ->
-          typename TestFixture::TCommand::Response {
-            EXPECT_TRUE(this->compare(request, this->getExpected()));
-            return this->createResponse(request, TestFixture::TCommand::Status::kAborted);
-          })
-      .spinOnce();
-
-  EXPECT_THROW(TestFixture::executeCommand(robot), CommandException);
-}
-
 TYPED_TEST(Command, CanSendAndReceiveRejected) {
   RobotMockServer server;
   Robot::Impl robot(
-      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort));
+      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort), 0);
 
   server
       .waitForCommand<typename TestFixture::TCommand>(
           [this](const typename TestFixture::TCommand::Request& request) ->
           typename TestFixture::TCommand::Response {
             EXPECT_TRUE(this->compare(request, this->getExpected()));
-            return this->createResponse(request, TestFixture::TCommand::Status::kRejected);
+            return this->createResponse(request,
+                                        TestFixture::TCommand::Status::kCommandNotPossibleRejected);
           })
       .spinOnce();
 
   EXPECT_THROW(TestFixture::executeCommand(robot), CommandException);
 }
 
-TYPED_TEST(Command, CanSendAndReceivePreempted) {
+TYPED_TEST(Command, ThrowsProtocolExceptionIfInvalidResponseReceived) {
   RobotMockServer server;
   Robot::Impl robot(
-      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort));
+      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort), 0);
+
+  typename TestFixture::TCommand::Status invalid_value = static_cast<decltype(invalid_value)>(-1);
+
+  server
+      .waitForCommand<typename TestFixture::TCommand>(
+          [ this, invalid_value ](const typename TestFixture::TCommand::Request& request) ->
+          typename TestFixture::TCommand::Response {
+            EXPECT_TRUE(this->compare(request, this->getExpected()));
+            return this->createResponse(request, invalid_value);
+          })
+      .spinOnce();
+
+  EXPECT_THROW(TestFixture::executeCommand(robot), ProtocolException);
+}
+
+using SetterCommandTypes = ::testing::Types<SetCollisionBehavior,
+                                            SetJointImpedance,
+                                            SetCartesianImpedance,
+                                            SetEEToK,
+                                            SetFToEE,
+                                            SetLoad,
+                                            SetFilters>;
+
+TYPED_TEST_CASE(SetterCommand, SetterCommandTypes);
+
+TYPED_TEST(SetterCommand, CanSendAndReceiveInvalidArgument) {
+  RobotMockServer server;
+  Robot::Impl robot(
+      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort), 0);
 
   server
       .waitForCommand<typename TestFixture::TCommand>(
           [this](const typename TestFixture::TCommand::Request& request) ->
           typename TestFixture::TCommand::Response {
             EXPECT_TRUE(this->compare(request, this->getExpected()));
-            return this->createResponse(request, TestFixture::TCommand::Status::kPreempted);
+            return this->createResponse(request,
+                                        TestFixture::TCommand::Status::kInvalidArgumentRejected);
           })
       .spinOnce();
 
   EXPECT_THROW(TestFixture::executeCommand(robot), CommandException);
 }
+
+TEST_F(MoveCommand, CanReceiveMotionStarted) {
+  RobotMockServer server;
+  Robot::Impl robot(
+      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort), 0);
+
+  Move::Request request(Move::ControllerMode::kJointImpedance,
+                        Move::MotionGeneratorMode::kJointVelocity, Move::Deviation(1, 2, 3),
+                        Move::Deviation(4, 5, 6));
+
+  server
+      .waitForCommand<research_interface::robot::Move>(
+          [this](const research_interface::robot::Move::Request& request)
+              -> research_interface::robot::Move::Response {
+                EXPECT_TRUE(this->compare(request, request));
+                return this->createResponse(request, Move::Status::kMotionStarted);
+              })
+      .spinOnce();
+
+  robot.executeCommand<Move>(request);
+}
+
+TEST_P(MoveCommand, CanReceiveMoveResponses) {
+  RobotMockServer server;
+  Robot::Impl robot(
+      std::make_unique<franka::Network>("127.0.0.1", research_interface::robot::kCommandPort), 0);
+
+  Move::Request request(Move::ControllerMode::kJointImpedance,
+                        Move::MotionGeneratorMode::kJointVelocity, Move::Deviation(1, 2, 3),
+                        Move::Deviation(4, 5, 6));
+
+  server
+      .waitForCommand<research_interface::robot::Move>(
+          [this](const research_interface::robot::Move::Request& request)
+              -> research_interface::robot::Move::Response {
+                EXPECT_TRUE(this->compare(request, request));
+                return this->createResponse(request, GetParam());
+              })
+      .spinOnce();
+
+  EXPECT_THROW(robot.executeCommand<Move>(request), CommandException);
+}
+
+INSTANTIATE_TEST_CASE_P(MoveCommandTests,
+                        MoveCommand,
+                        ::testing::Values(Move::Status::kPreempted,
+                                          Move::Status::kStartAtSingularPoseRejected,
+                                          Move::Status::kOutOfRangeRejected,
+                                          Move::Status::kReflexAborted,
+                                          Move::Status::kEmergencyAborted,
+                                          Move::Status::kInputErrorAborted));

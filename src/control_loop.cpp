@@ -4,6 +4,7 @@
 
 #include <pthread.h>
 
+#include <cerrno>
 #include <cstring>
 #include <exception>
 #include <fstream>
@@ -151,6 +152,14 @@ void ControlLoop<CartesianPose>::convertMotion(
     const CartesianPose& motion,
     research_interface::robot::MotionGeneratorCommand* command) {
   command->O_T_EE_d = motion.O_T_EE;
+
+  if (motion.hasValidElbow()) {
+    command->valid_elbow = true;
+    command->elbow_d = motion.elbow;
+  } else {
+    command->valid_elbow = false;
+    command->elbow_d = {};
+  }
 }
 
 template <>
@@ -158,15 +167,28 @@ void ControlLoop<CartesianVelocities>::convertMotion(
     const CartesianVelocities& motion,
     research_interface::robot::MotionGeneratorCommand* command) {
   command->O_dP_EE_d = motion.O_dP_EE;
+
+  if (motion.hasValidElbow()) {
+    command->valid_elbow = true;
+    command->elbow_d = motion.elbow;
+  } else {
+    command->valid_elbow = false;
+    command->elbow_d = {};
+  }
 }
 
 void setCurrentThreadToRealtime(bool throw_on_error) {
-  constexpr int kThreadPriority = 20;
+  const int thread_priority = sched_get_priority_max(SCHED_FIFO);
+  if (thread_priority == -1) {
+    throw RealtimeException("libfranka: unable to get maximum possible thread priority: "s +
+                            std::strerror(errno));
+  }
   sched_param thread_param{};
-  thread_param.sched_priority = kThreadPriority;
+  thread_param.sched_priority = thread_priority;
   if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &thread_param) != 0) {
     if (throw_on_error) {
-      throw RealtimeException("libfranka: unable to set realtime scheduling: "s + strerror(errno));
+      throw RealtimeException("libfranka: unable to set realtime scheduling: "s +
+                              std::strerror(errno));
     }
   }
 }

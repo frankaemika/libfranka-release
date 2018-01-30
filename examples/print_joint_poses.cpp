@@ -7,8 +7,9 @@
 #include <franka/model.h>
 
 /**
- * @example print_joint_positions.cpp
- * An example showing how to use the model library.
+ * @example print_joint_poses.cpp
+ * An example showing how to use the model library that prints the transformation
+ * matrix of each joint with respect to the base frame.
  */
 
 template <class T, size_t N>
@@ -22,7 +23,7 @@ std::ostream& operator<<(std::ostream& ostream, const std::array<T, N>& array) {
 
 int main(int argc, char** argv) {
   if (argc != 2) {
-    std::cerr << "Usage: ./print_joint_positions <robot-hostname>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <robot-hostname>" << std::endl;
     return -1;
   }
 
