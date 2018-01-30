@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project(libfranka
-  VERSION 0.1.0
+  VERSION 0.2.0
   LANGUAGES CXX
 )
 
@@ -20,6 +20,7 @@ set(THIRDPARTY_SOURCES_DIR "${CMAKE_SOURCE_DIR}/3rdparty" CACHE PATH
 # when making changes here.
 
 find_package(Poco REQUIRED COMPONENTS Net Foundation)
+find_package(Eigen3 REQUIRED)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -51,6 +52,9 @@ add_library(franka SHARED
   src/gripper_state.cpp
   src/library_downloader.cpp
   src/library_loader.cpp
+  src/load_calculations.cpp
+  src/log.cpp
+  src/logger.cpp
   src/model.cpp
   src/model_library.cpp
   src/network.cpp
@@ -71,8 +75,13 @@ target_include_directories(franka PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(franka PUBLIC Poco::Net Poco::Foundation Threads::Threads)
-target_link_libraries(franka PRIVATE libfranka-common)
+target_link_libraries(franka PRIVATE
+  Poco::Foundation
+  Poco::Net
+  Eigen3::Eigen3
+  Threads::Threads
+  libfranka-common
+)
 
 ## Installation
 include(GNUInstallDirs)
@@ -113,9 +122,6 @@ install(EXPORT FrankaTargets
   NAMESPACE Franka::
   DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
 )
-
-# Install catkin package.xml
-install(FILES package.xml DESTINATION share/libfranka)
 
 ## Subprojects
 

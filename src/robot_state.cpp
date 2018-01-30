@@ -53,12 +53,16 @@ std::ostream& operator<<(std::ostream& ostream, const RobotMode robot_mode) {
 std::ostream& operator<<(std::ostream& ostream, const franka::RobotState& robot_state) {
   ostream << "{\"O_T_EE\": " << robot_state.O_T_EE << ", \"O_T_EE_d\": " << robot_state.O_T_EE_d
           << ", \"F_T_EE\": " << robot_state.F_T_EE << ", \"EE_T_K\": " << robot_state.EE_T_K
-          << ", \"m_load\": " << robot_state.m_load << ", \"F_x_Cload\": " << robot_state.F_x_Cload
-          << ", \"I_load\": " << robot_state.I_load << ", \"elbow\": " << robot_state.elbow
+          << ", \"m_ee\": " << robot_state.m_ee << ", \"F_x_Cee\": " << robot_state.F_x_Cee
+          << ", \"I_ee\": " << robot_state.I_ee << ", \"m_load\": " << robot_state.m_load
+          << ", \"F_x_Cload\": " << robot_state.F_x_Cload << ", \"I_load\": " << robot_state.I_load
+          << ", \"m_total\": " << robot_state.m_total
+          << ", \"F_x_Ctotal\": " << robot_state.F_x_Ctotal
+          << ", \"I_total\": " << robot_state.I_total << ", \"elbow\": " << robot_state.elbow
           << ", \"elbow_d\": " << robot_state.elbow_d << ", \"tau_J\": " << robot_state.tau_J
-          << ", \"dtau_J\": " << robot_state.dtau_J << ", \"q\": " << robot_state.q
-          << ", \"dq\": " << robot_state.dq << ", \"q_d\": " << robot_state.q_d
-          << ", \"dq_d\": " << robot_state.dq_d
+          << ", \"tau_J_d\": " << robot_state.tau_J_d << ", \"dtau_J\": " << robot_state.dtau_J
+          << ", \"q\": " << robot_state.q << ", \"dq\": " << robot_state.dq
+          << ", \"q_d\": " << robot_state.q_d << ", \"dq_d\": " << robot_state.dq_d
           << ", \"joint_contact\": " << robot_state.joint_contact
           << ", \"cartesian_contact\": " << robot_state.cartesian_contact
           << ", \"joint_collision\": " << robot_state.joint_collision
@@ -66,6 +70,7 @@ std::ostream& operator<<(std::ostream& ostream, const franka::RobotState& robot_
           << ", \"tau_ext_hat_filtered\": " << robot_state.tau_ext_hat_filtered
           << ", \"O_F_ext_hat_K\": " << robot_state.O_F_ext_hat_K
           << ", \"K_F_ext_hat_K\": " << robot_state.K_F_ext_hat_K
+          << ", \"theta\": " << robot_state.theta << ", \"dtheta\": " << robot_state.dtheta
           << ", \"current_errors\": " << robot_state.current_errors
           << ", \"last_motion_errors\": " << robot_state.last_motion_errors
           << ", \"control_command_success_rate\": " << robot_state.control_command_success_rate
