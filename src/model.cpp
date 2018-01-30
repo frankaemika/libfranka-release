@@ -4,6 +4,8 @@
 
 #include <sstream>
 
+#include <Eigen/Core>
+
 #include <research_interface/robot/service_types.h>
 
 #include "model_library.h"
@@ -56,6 +58,13 @@ std::array<double, 16> Model::pose(Frame frame, const franka::RobotState& robot_
     case Frame::kEndEffector:
       library_->ee(robot_state.q.data(), robot_state.F_T_EE.data(), output.data());
       break;
+    case Frame::kStiffness:
+      library_->ee(robot_state.q.data(),
+                   Eigen::Matrix4d(Eigen::Matrix4d(robot_state.F_T_EE.data()) *
+                                   Eigen::Matrix4d(robot_state.EE_T_K.data()))
+                       .data(),
+                   output.data());
+      break;
     default:
       throw std::invalid_argument("Invalid frame given.");
   }
@@ -93,6 +102,13 @@ std::array<double, 42> Model::bodyJacobian(Frame frame,
       break;
     case Frame::kEndEffector:
       library_->body_jacobian_ee(robot_state.q.data(), robot_state.F_T_EE.data(), output.data());
+      break;
+    case Frame::kStiffness:
+      library_->body_jacobian_ee(robot_state.q.data(),
+                                 Eigen::Matrix4d(Eigen::Matrix4d(robot_state.F_T_EE.data()) *
+                                                 Eigen::Matrix4d(robot_state.EE_T_K.data()))
+                                     .data(),
+                                 output.data());
       break;
     default:
       throw std::invalid_argument("Invalid frame given.");
@@ -132,6 +148,13 @@ std::array<double, 42> Model::zeroJacobian(Frame frame,
     case Frame::kEndEffector:
       library_->zero_jacobian_ee(robot_state.q.data(), robot_state.F_T_EE.data(), output.data());
       break;
+    case Frame::kStiffness:
+      library_->zero_jacobian_ee(robot_state.q.data(),
+                                 Eigen::Matrix4d(Eigen::Matrix4d(robot_state.F_T_EE.data()) *
+                                                 Eigen::Matrix4d(robot_state.EE_T_K.data()))
+                                     .data(),
+                                 output.data());
+      break;
     default:
       throw std::invalid_argument("Invalid frame given.");
   }
@@ -141,37 +164,36 @@ std::array<double, 42> Model::zeroJacobian(Frame frame,
 
 std::array<double, 49> franka::Model::mass(
     const franka::RobotState& robot_state,
-    const std::array<double, 9>& load_inertia,
-    double load_mass,
-    const std::array<double, 3>& F_x_Cload)  // NOLINT (readability-identifier-naming)
+    const std::array<double, 9>& I_total,  // NOLINT (readability-identifier-naming)
+    double m_total,
+    const std::array<double, 3>& F_x_Ctotal)  // NOLINT (readability-identifier-naming)
     const noexcept {
   std::array<double, 49> output;
-  library_->mass(robot_state.q.data(), load_inertia.data(), load_mass, F_x_Cload.data(),
-                 output.data());
+  library_->mass(robot_state.q.data(), I_total.data(), m_total, F_x_Ctotal.data(), output.data());
 
   return output;
 }
 
 std::array<double, 7> franka::Model::coriolis(
     const franka::RobotState& robot_state,
-    const std::array<double, 9>& load_inertia,
-    double load_mass,
-    const std::array<double, 3>& F_x_Cload)  // NOLINT (readability-identifier-naming)
+    const std::array<double, 9>& I_total,  // NOLINT (readability-identifier-naming)
+    double m_total,
+    const std::array<double, 3>& F_x_Ctotal)  // NOLINT (readability-identifier-naming)
     const noexcept {
   std::array<double, 7> output;
-  library_->coriolis(robot_state.q.data(), robot_state.dq.data(), load_inertia.data(), load_mass,
-                     F_x_Cload.data(), output.data());
+  library_->coriolis(robot_state.q.data(), robot_state.dq.data(), I_total.data(), m_total,
+                     F_x_Ctotal.data(), output.data());
 
   return output;
 }
 
 std::array<double, 7> franka::Model::gravity(
     const franka::RobotState& robot_state,
-    double load_mass,
-    const std::array<double, 3>& F_x_Cload,  // NOLINT (readability-identifier-naming)
+    double m_total,
+    const std::array<double, 3>& F_x_Ctotal,  // NOLINT (readability-identifier-naming)
     const std::array<double, 3>& gravity_earth) const noexcept {
   std::array<double, 7> output;
-  library_->gravity(robot_state.q.data(), gravity_earth.data(), load_mass, F_x_Cload.data(),
+  library_->gravity(robot_state.q.data(), gravity_earth.data(), m_total, F_x_Ctotal.data(),
                     output.data());
 
   return output;

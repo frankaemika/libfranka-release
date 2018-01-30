@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>libfranka</name>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <description>libfranka is a C++ library for Franka Emika research robots</description>
   <maintainer email="support@franka.de">Franka Emika GmbH</maintainer>
   <license>Apache 2.0</license>
@@ -14,6 +14,7 @@
   <buildtool_depend>cmake</buildtool_depend>
 
   <build_depend>libpoco-dev</build_depend>
+  <build_depend>eigen</build_depend>
 
   <exec_depend>catkin</exec_depend>
   <exec_depend>libpoco-dev</exec_depend>

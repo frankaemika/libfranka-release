@@ -6,74 +6,99 @@
 
 #include <gtest/gtest.h>
 
+#include "load_calculations.h"
+
 bool stringContains(const std::string& actual, const std::string& expected) {
   return actual.find(expected) != std::string::npos;
 }
 
 void testRobotStateIsZero(const franka::RobotState& actual) {
-  for (size_t i = 0; i < actual.O_T_EE.size(); i++) {
-    EXPECT_EQ(0.0, actual.O_T_EE[i]);
+  for (double element : actual.O_T_EE) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.O_T_EE_d.size(); i++) {
-    EXPECT_EQ(0.0, actual.O_T_EE_d[i]);
+  for (double element : actual.O_T_EE_d) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.EE_T_K.size(); i++) {
-    EXPECT_EQ(0.0, actual.EE_T_K[i]);
+  for (double element : actual.EE_T_K) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.F_T_EE.size(); i++) {
-    EXPECT_EQ(0.0, actual.F_T_EE[i]);
+  for (double element : actual.F_T_EE) {
+    EXPECT_EQ(0.0, element);
+  }
+  EXPECT_EQ(0.0, actual.m_ee);
+  for (double element : actual.F_x_Cee) {
+    EXPECT_EQ(0.0, element);
+  }
+  for (double element : actual.I_ee) {
+    EXPECT_EQ(0.0, element);
   }
   EXPECT_EQ(0.0, actual.m_load);
-  for (size_t i = 0; i < actual.F_x_Cload.size(); i++) {
-    EXPECT_EQ(0.0, actual.F_x_Cload[i]);
+  for (double element : actual.F_x_Cload) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.I_load.size(); i++) {
-    EXPECT_EQ(0.0, actual.I_load[i]);
+  for (double element : actual.I_load) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.elbow.size(); i++) {
-    EXPECT_EQ(0.0, actual.elbow[i]);
+  EXPECT_EQ(0.0, actual.m_total);
+  for (double element : actual.F_x_Ctotal) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.elbow_d.size(); i++) {
-    EXPECT_EQ(0.0, actual.elbow_d[i]);
+  for (double element : actual.I_total) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.tau_J.size(); i++) {
-    EXPECT_EQ(0.0, actual.tau_J[i]);
+  for (double element : actual.elbow) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.dtau_J.size(); i++) {
-    EXPECT_EQ(0.0, actual.dtau_J[i]);
+  for (double element : actual.elbow_d) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.q.size(); i++) {
-    EXPECT_EQ(0.0, actual.q[i]);
+  for (double element : actual.tau_J) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.dq.size(); i++) {
-    EXPECT_EQ(0.0, actual.dq[i]);
+  for (double element : actual.tau_J_d) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.q_d.size(); i++) {
-    EXPECT_EQ(0.0, actual.q_d[i]);
+  for (double element : actual.dtau_J) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.dq_d.size(); i++) {
-    EXPECT_EQ(0.0, actual.dq_d[i]);
+  for (double element : actual.q) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.joint_contact.size(); i++) {
-    EXPECT_EQ(0.0, actual.joint_contact[i]);
+  for (double element : actual.dq) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.cartesian_contact.size(); i++) {
-    EXPECT_EQ(0.0, actual.cartesian_contact[i]);
+  for (double element : actual.q_d) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.joint_collision.size(); i++) {
-    EXPECT_EQ(0.0, actual.joint_collision[i]);
+  for (double element : actual.dq_d) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.cartesian_collision.size(); i++) {
-    EXPECT_EQ(0.0, actual.cartesian_collision[i]);
+  for (double element : actual.joint_contact) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.tau_ext_hat_filtered.size(); i++) {
-    EXPECT_EQ(0.0, actual.tau_ext_hat_filtered[i]);
+  for (double element : actual.cartesian_contact) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.O_F_ext_hat_K.size(); i++) {
-    EXPECT_EQ(0.0, actual.O_F_ext_hat_K[i]);
+  for (double element : actual.joint_collision) {
+    EXPECT_EQ(0.0, element);
   }
-  for (size_t i = 0; i < actual.K_F_ext_hat_K.size(); i++) {
-    EXPECT_EQ(0.0, actual.K_F_ext_hat_K[i]);
+  for (double element : actual.cartesian_collision) {
+    EXPECT_EQ(0.0, element);
+  }
+  for (double element : actual.tau_ext_hat_filtered) {
+    EXPECT_EQ(0.0, element);
+  }
+  for (double element : actual.O_F_ext_hat_K) {
+    EXPECT_EQ(0.0, element);
+  }
+  for (double element : actual.K_F_ext_hat_K) {
+    EXPECT_EQ(0.0, element);
+  }
+  for (double element : actual.theta) {
+    EXPECT_EQ(0.0, element);
+  }
+  for (double element : actual.dtheta) {
+    EXPECT_EQ(0.0, element);
   }
   EXPECT_FALSE(actual.current_errors);
   EXPECT_FALSE(actual.last_motion_errors);
@@ -86,12 +111,19 @@ void testRobotStatesAreEqual(const franka::RobotState& expected, const franka::R
   EXPECT_EQ(expected.O_T_EE_d, actual.O_T_EE_d);
   EXPECT_EQ(expected.F_T_EE, actual.F_T_EE);
   EXPECT_EQ(expected.EE_T_K, actual.EE_T_K);
+  EXPECT_EQ(expected.m_ee, actual.m_ee);
+  EXPECT_EQ(expected.F_x_Cee, actual.F_x_Cee);
+  EXPECT_EQ(expected.I_ee, actual.I_ee);
   EXPECT_EQ(expected.m_load, actual.m_load);
   EXPECT_EQ(expected.F_x_Cload, actual.F_x_Cload);
   EXPECT_EQ(expected.I_load, actual.I_load);
+  EXPECT_EQ(expected.m_total, actual.m_total);
+  EXPECT_EQ(expected.F_x_Ctotal, actual.F_x_Ctotal);
+  EXPECT_EQ(expected.I_total, actual.I_total);
   EXPECT_EQ(expected.elbow, actual.elbow);
   EXPECT_EQ(expected.elbow_d, actual.elbow_d);
   EXPECT_EQ(expected.tau_J, actual.tau_J);
+  EXPECT_EQ(expected.tau_J_d, actual.tau_J_d);
   EXPECT_EQ(expected.dtau_J, actual.dtau_J);
   EXPECT_EQ(expected.q, actual.q);
   EXPECT_EQ(expected.dq, actual.dq);
@@ -104,6 +136,8 @@ void testRobotStatesAreEqual(const franka::RobotState& expected, const franka::R
   EXPECT_EQ(expected.tau_ext_hat_filtered, actual.tau_ext_hat_filtered);
   EXPECT_EQ(expected.O_F_ext_hat_K, actual.O_F_ext_hat_K);
   EXPECT_EQ(expected.K_F_ext_hat_K, actual.K_F_ext_hat_K);
+  EXPECT_EQ(expected.theta, actual.theta);
+  EXPECT_EQ(expected.dtheta, actual.dtheta);
   EXPECT_EQ(expected.current_errors, actual.current_errors);
   EXPECT_EQ(expected.last_motion_errors, actual.last_motion_errors);
   EXPECT_EQ(expected.control_command_success_rate, actual.control_command_success_rate);
@@ -117,12 +151,24 @@ void testRobotStatesAreEqual(const research_interface::robot::RobotState& expect
   EXPECT_EQ(expected.O_T_EE_d, actual.O_T_EE_d);
   EXPECT_EQ(expected.F_T_EE, actual.F_T_EE);
   EXPECT_EQ(expected.EE_T_K, actual.EE_T_K);
+  EXPECT_EQ(expected.m_ee, actual.m_ee);
+  EXPECT_EQ(expected.F_x_Cee, actual.F_x_Cee);
+  EXPECT_EQ(expected.I_ee, actual.I_ee);
   EXPECT_EQ(expected.m_load, actual.m_load);
   EXPECT_EQ(expected.F_x_Cload, actual.F_x_Cload);
   EXPECT_EQ(expected.I_load, actual.I_load);
+  EXPECT_EQ(expected.m_ee + expected.m_load, actual.m_total);
+  EXPECT_EQ(franka::combineCenterOfMass(expected.m_ee, expected.F_x_Cee, expected.m_load,
+                                        expected.F_x_Cload),
+            actual.F_x_Ctotal);
+  EXPECT_EQ(franka::combineInertiaTensor(expected.m_ee, expected.F_x_Cee, expected.I_ee,
+                                         expected.m_load, expected.F_x_Cload, expected.I_load,
+                                         actual.m_total, actual.F_x_Ctotal),
+            actual.I_total);
   EXPECT_EQ(expected.elbow, actual.elbow);
   EXPECT_EQ(expected.elbow_d, actual.elbow_d);
   EXPECT_EQ(expected.tau_J, actual.tau_J);
+  EXPECT_EQ(expected.tau_J_d, actual.tau_J_d);
   EXPECT_EQ(expected.dtau_J, actual.dtau_J);
   EXPECT_EQ(expected.q, actual.q);
   EXPECT_EQ(expected.dq, actual.dq);
@@ -135,6 +181,8 @@ void testRobotStatesAreEqual(const research_interface::robot::RobotState& expect
   EXPECT_EQ(expected.tau_ext_hat_filtered, actual.tau_ext_hat_filtered);
   EXPECT_EQ(expected.O_F_ext_hat_K, actual.O_F_ext_hat_K);
   EXPECT_EQ(expected.K_F_ext_hat_K, actual.K_F_ext_hat_K);
+  EXPECT_EQ(expected.theta, actual.theta);
+  EXPECT_EQ(expected.dtheta, actual.dtheta);
   EXPECT_EQ(franka::Errors(expected.errors), actual.current_errors);
   EXPECT_EQ(franka::Errors(expected.reflex_reason), actual.last_motion_errors);
   EXPECT_EQ(expected.message_id, actual.time.toMSec());
@@ -188,11 +236,25 @@ void randomRobotState(franka::RobotState& robot_state) {
   for (double& element : robot_state.F_T_EE) {
     element = randomDouble();
   }
+  robot_state.m_ee = randomDouble();
+  for (double& element : robot_state.F_x_Cee) {
+    element = randomDouble();
+  }
+  for (double& element : robot_state.I_ee) {
+    element = randomDouble();
+  }
   robot_state.m_load = randomDouble();
   for (double& element : robot_state.F_x_Cload) {
     element = randomDouble();
   }
   for (double& element : robot_state.I_load) {
+    element = randomDouble();
+  }
+  robot_state.m_total = randomDouble();
+  for (double& element : robot_state.F_x_Ctotal) {
+    element = randomDouble();
+  }
+  for (double& element : robot_state.I_total) {
     element = randomDouble();
   }
   for (double& element : robot_state.elbow) {
@@ -202,6 +264,9 @@ void randomRobotState(franka::RobotState& robot_state) {
     element = randomDouble();
   }
   for (double& element : robot_state.tau_J) {
+    element = randomDouble();
+  }
+  for (double& element : robot_state.tau_J_d) {
     element = randomDouble();
   }
   for (double& element : robot_state.dtau_J) {
@@ -238,6 +303,12 @@ void randomRobotState(franka::RobotState& robot_state) {
     element = randomDouble();
   }
   for (double& element : robot_state.K_F_ext_hat_K) {
+    element = randomDouble();
+  }
+  for (double& element : robot_state.theta) {
+    element = randomDouble();
+  }
+  for (double& element : robot_state.dtheta) {
     element = randomDouble();
   }
   std::array<bool, sizeof(research_interface::robot::RobotState::errors)> errors{};
@@ -268,6 +339,13 @@ void randomRobotState(research_interface::robot::RobotState& robot_state) {
   for (double& element : robot_state.F_T_EE) {
     element = randomDouble();
   }
+  robot_state.m_ee = randomDouble();
+  for (double& element : robot_state.F_x_Cee) {
+    element = randomDouble();
+  }
+  for (double& element : robot_state.I_ee) {
+    element = randomDouble();
+  }
   robot_state.m_load = randomDouble();
   for (double& element : robot_state.F_x_Cload) {
     element = randomDouble();
@@ -318,6 +396,12 @@ void randomRobotState(research_interface::robot::RobotState& robot_state) {
     element = randomDouble();
   }
   for (double& element : robot_state.K_F_ext_hat_K) {
+    element = randomDouble();
+  }
+  for (double& element : robot_state.theta) {
+    element = randomDouble();
+  }
+  for (double& element : robot_state.dtheta) {
     element = randomDouble();
   }
   for (bool& error : robot_state.errors) {
@@ -373,6 +457,24 @@ void testMotionGeneratorCommandsAreEqual(
 void testControllerCommandsAreEqual(const research_interface::robot::ControllerCommand& expected,
                                     const research_interface::robot::ControllerCommand& actual) {
   EXPECT_EQ(expected.tau_J_d, actual.tau_J_d);
+}
+
+void testRobotCommandsAreEqual(const research_interface::robot::RobotCommand& expected,
+                               const research_interface::robot::RobotCommand& actual) {
+  testMotionGeneratorCommandsAreEqual(expected.motion, actual.motion);
+  testControllerCommandsAreEqual(expected.control, actual.control);
+  EXPECT_EQ(expected.message_id, actual.message_id);
+}
+
+void testRobotCommandsAreEqual(const research_interface::robot::RobotCommand& expected,
+                               const franka::RobotCommand actual) {
+  research_interface::robot::RobotCommand fci_command = expected;
+  fci_command.motion.q_d = actual.joint_positions.q;
+  fci_command.motion.dq_d = actual.joint_velocities.dq;
+  fci_command.motion.O_T_EE_d = actual.cartesian_pose.O_T_EE;
+  fci_command.motion.O_dP_EE_d = actual.cartesian_velocities.O_dP_EE;
+  fci_command.control.tau_J_d = actual.torques.tau_J;
+  testRobotCommandsAreEqual(expected, fci_command);
 }
 
 void randomGripperState(franka::GripperState& gripper_state) {
