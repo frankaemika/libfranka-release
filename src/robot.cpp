@@ -10,9 +10,10 @@
 
 namespace franka {
 
-Robot::Robot(const std::string& franka_address, RealtimeConfig realtime_config)
+Robot::Robot(const std::string& franka_address, RealtimeConfig realtime_config, size_t log_size)
     : impl_{new Robot::Impl(
           std::make_unique<Network>(franka_address, research_interface::robot::kCommandPort),
+          log_size,
           realtime_config)} {}
 
 // Has to be declared here, as the Impl type is incomplete in the header.
@@ -253,6 +254,17 @@ void Robot::setLoad(double load_mass,
                     const std::array<double, 3>& F_x_Cload,  // NOLINT (readability-named-parameter)
                     const std::array<double, 9>& load_inertia) {
   impl_->executeCommand<research_interface::robot::SetLoad>(load_mass, F_x_Cload, load_inertia);
+}
+
+void Robot::setFilters(double joint_position_filter_frequency,
+                       double joint_velocity_filter_frequency,
+                       double cartesian_position_filter_frequency,
+                       double cartesian_velocity_filter_frequency,
+                       double controller_filter_frequency) {
+  impl_->executeCommand<research_interface::robot::SetFilters>(
+      joint_position_filter_frequency, joint_velocity_filter_frequency,
+      cartesian_position_filter_frequency, cartesian_velocity_filter_frequency,
+      controller_filter_frequency);
 }
 
 void Robot::automaticErrorRecovery() {
