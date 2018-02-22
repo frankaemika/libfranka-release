@@ -71,6 +71,7 @@ class Gripper {
    * @return True if command was successful, false otherwise.
    *
    * @throw CommandException if an error occurred.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
    *
    * @see GripperState for the maximum grasping width.
    */
@@ -79,15 +80,27 @@ class Gripper {
   /**
    * Grasps an object.
    *
+   * An object is considered grasped if the distance \f$d\f$ between the gripper fingers satisfies
+   * \f$(\text{width} - \text{epsilon_inner}) < d < (\text{width} + \text{epsilon_outer})\f$.
+   *
    * @param[in] width Size of the object to grasp. [m]
    * @param[in] speed Closing speed. [m/s]
    * @param[in] force Grasping force. [N]
+   * @param[in] epsilon_inner Maximum tolerated deviation when the actual grasped width is smaller
+   * than the commanded grasp width.
+   * @param[in] epsilon_outer Maximum tolerated deviation when the actual grasped width is larger
+   * than the commanded grasp width.
    *
    * @return True if an object has been grasped, false otherwise.
    *
    * @throw CommandException if an error occurred.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
    */
-  bool grasp(double width, double speed, double force) const;
+  bool grasp(double width,
+             double speed,
+             double force,
+             double epsilon_inner = 0.005,
+             double epsilon_outer = 0.005) const;
 
   /**
    * Moves the gripper fingers to a specified width.
@@ -98,6 +111,7 @@ class Gripper {
    * @return True if command was successful, false otherwise.
    *
    * @throw CommandException if an error occurred.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
    */
   bool move(double width, double speed) const;
 
@@ -107,6 +121,7 @@ class Gripper {
    * @return True if command was successful, false otherwise.
    *
    * @throw CommandException if an error occurred.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
    */
   bool stop() const;
 
