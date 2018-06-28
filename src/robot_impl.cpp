@@ -20,10 +20,19 @@ inline ControlException createControlException(const char* message,
     message_stream << " " << reflex_errors;
 
     if (log.size() >= 2) {
-      // Read second to last control_command_success_rate since the last one will always be zero.
+      // Count number of lost packets in the last and before last packets.
+      uint64_t lost_packets =
+          log[log.size() - 1].state.time.toMSec() - log[log.size() - 2].state.time.toMSec() - 1;
+      // Read second to last control_command_success_rate since the last one will always be zero and
+      // consider in the success rate assumming all previous packets were lost.
       message_stream << std::endl
                      << "control_command_success_rate: "
-                     << log[log.size() - 2].state.control_command_success_rate;
+                     << (log[log.size() - 2].state.control_command_success_rate *
+                         (1 - static_cast<double>(lost_packets) / 100));
+      // Packets lost in a row
+      if (lost_packets > 0) {
+        message_stream << " packets lost in a row in the last sample: " << lost_packets;
+      }
     }
   }
   return ControlException(message_stream.str(), log);
@@ -227,7 +236,7 @@ uint32_t Robot::Impl::startMotion(
       throw ControlException(e.what());
     }
 
-    robot_state = update();
+    robot_state = update(nullptr, nullptr);
   }
 
   logger_.flush();
@@ -260,6 +269,10 @@ void Robot::Impl::finishMotion(
   }
 
   auto response = network_->tcpBlockingReceiveResponse<research_interface::robot::Move>(motion_id);
+  if (response.status == research_interface::robot::Move::Status::kReflexAborted) {
+    throw createControlException("Motion finished commanded, but the robot is still moving!",
+                                 response.status, robot_state.last_motion_errors, logger_.flush());
+  }
   try {
     handleCommandResponse<research_interface::robot::Move>(response);
   } catch (const CommandException& e) {
@@ -313,6 +326,9 @@ RobotState convertRobotState(const research_interface::robot::RobotState& robot_
       robot_state.F_x_Cload, robot_state.I_load, converted.m_total, converted.F_x_Ctotal);
   converted.elbow = robot_state.elbow;
   converted.elbow_d = robot_state.elbow_d;
+  converted.elbow_c = robot_state.elbow_c;
+  converted.delbow_c = robot_state.delbow_c;
+  converted.ddelbow_c = robot_state.ddelbow_c;
   converted.tau_J = robot_state.tau_J;
   converted.tau_J_d = robot_state.tau_J_d;
   converted.dtau_J = robot_state.dtau_J;
@@ -320,6 +336,7 @@ RobotState convertRobotState(const research_interface::robot::RobotState& robot_
   converted.dq = robot_state.dq;
   converted.q_d = robot_state.q_d;
   converted.dq_d = robot_state.dq_d;
+  converted.ddq_d = robot_state.ddq_d;
   converted.joint_contact = robot_state.joint_contact;
   converted.cartesian_contact = robot_state.cartesian_contact;
   converted.joint_collision = robot_state.joint_collision;
@@ -327,6 +344,10 @@ RobotState convertRobotState(const research_interface::robot::RobotState& robot_
   converted.tau_ext_hat_filtered = robot_state.tau_ext_hat_filtered;
   converted.O_F_ext_hat_K = robot_state.O_F_ext_hat_K;
   converted.K_F_ext_hat_K = robot_state.K_F_ext_hat_K;
+  converted.O_dP_EE_d = robot_state.O_dP_EE_d;
+  converted.O_T_EE_c = robot_state.O_T_EE_c;
+  converted.O_dP_EE_c = robot_state.O_dP_EE_c;
+  converted.O_ddP_EE_c = robot_state.O_ddP_EE_c;
   converted.theta = robot_state.theta;
   converted.dtheta = robot_state.dtheta;
   converted.current_errors = robot_state.errors;
