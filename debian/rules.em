@@ -27,7 +27,7 @@ override_dh_auto_configure:
 	# set things like CMAKE_PREFIX_PATH, PKG_CONFIG_PATH, and PYTHONPATH.
 	if [ -f "@(InstallationPrefix)/setup.sh" ]; then . "@(InstallationPrefix)/setup.sh"; fi && \
 	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
-		-DBUILD_DOCUMENTATION=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=ON
+		-DBUILD_DOCUMENTATION=OFF -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON
 
 override_dh_auto_build:
 	# In case we're installing to a non-standard location, look for a setup.sh
