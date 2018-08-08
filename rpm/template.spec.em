@@ -30,7 +30,7 @@ mkdir -p obj-%{_target_platform} && cd obj-%{_target_platform}
         -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
         -DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
         -DBUILD_DOCUMENTATION=OFF \
-        -DBUILD_EXAMPLES=OFF \
+        -DBUILD_EXAMPLES=ON \
         -DBUILD_TESTS=ON \
         -DSETUPTOOLS_DEB_LAYOUT=OFF \
         -DCATKIN_BUILD_BINARY_PACKAGE="1" \
