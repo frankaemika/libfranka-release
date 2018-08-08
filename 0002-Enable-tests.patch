@@ -1,7 +1,7 @@
-From d473554fa1d3a08544bd1ce0f2894f922c8883f6 Mon Sep 17 00:00:00 2001
+From 17ee4b1ce944857e03537a36aef5d1b24184db07 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Thu, 28 Sep 2017 10:39:20 +0200
-Subject: [PATCH 2/3] Enable tests
+Subject: [PATCH 2/4] Enable tests
 
 ---
  rpm/template.spec.em | 2 +-
