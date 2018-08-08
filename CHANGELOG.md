@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 0.5.0 - 2018-08-08
+
+### Motion and control interfaces
+
+ * **BREAKING** Added low-pass filter for all realtime interfaces with default cutoff frequency
+   of 100 Hz
+ * **DEPRECATED** `franka::Robot::setFilters` in favor of `franka::lowpassFilter`
+ * Fixed description of log record entries
+
+### Library
+
+  * Added `lowpass_filter.h` to public interface
+
+### Examples
+
+ * Added `communication_test.cpp` to evaluate network performance.
+
 ## 0.4.0 - 2018-06-21
 
 Requires Panda system version >= 1.3.0

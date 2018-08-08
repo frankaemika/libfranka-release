@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project(libfranka
-  VERSION 0.4.0
+  VERSION 0.5.0
   LANGUAGES CXX
 )
 
@@ -117,9 +117,6 @@ install(EXPORT FrankaTargets
   DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
 )
 
-# Install catkin package.xml
-install(FILES package.xml DESTINATION share/libfranka)
-
 ## Subprojects
 
 # Ignore find_package(Franka) in subprojects.
@@ -215,7 +212,7 @@ if(CLANG_TIDY_PROG)
   set(TIDY_LINE_FILTER "[{\"name\":\"${TIDY_LINE_FILTER}\"}]")
 
   add_custom_target(tidy
-    COMMAND ${CLANG_TIDY_PROG} -p=${CMAKE_BINARY_DIR}
+    COMMAND ${CLANG_TIDY_PROG} -p=${CMAKE_BINARY_DIR} -fix
                                -line-filter=${TIDY_LINE_FILTER} ${SOURCES}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Running clang-tidy"
