@@ -1,4 +1,4 @@
-From b8e8db3e1858e91db11c0302e6eec1e83afc21af Mon Sep 17 00:00:00 2001
+From 706ca898a4d1f0b8308416f634a5c1711af009de Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 27 Sep 2017 17:33:12 +0200
 Subject: [PATCH] Added install rule for package.xml
@@ -8,10 +8,10 @@ Subject: [PATCH] Added install rule for package.xml
  1 file changed, 3 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index d9b2ab3..15b3f5a 100644
+index eec52ce..9b4e6f1 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -124,6 +124,9 @@ install(EXPORT FrankaTargets
+@@ -117,6 +117,9 @@ install(EXPORT FrankaTargets
    DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
  )
  
