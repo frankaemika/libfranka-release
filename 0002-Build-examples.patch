@@ -1,0 +1,25 @@
+From 73342c7d161de25a0525385286f17e98997be656 Mon Sep 17 00:00:00 2001
+From: Florian Walch <florian.walch@franka.de>
+Date: Wed, 8 Aug 2018 13:32:33 +0200
+Subject: [PATCH 2/2] Build examples
+
+---
+ debian/rules.em | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/debian/rules.em b/debian/rules.em
+index 8028ee9..09107bd 100755
+--- a/debian/rules.em
++++ b/debian/rules.em
+@@ -27,7 +27,7 @@ override_dh_auto_configure:
+ 	# set things like CMAKE_PREFIX_PATH, PKG_CONFIG_PATH, and PYTHONPATH.
+ 	if [ -f "@(InstallationPrefix)/setup.sh" ]; then . "@(InstallationPrefix)/setup.sh"; fi && \
+ 	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
+-		-DBUILD_DOCUMENTATION=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=ON
++		-DBUILD_DOCUMENTATION=OFF -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON
+ 
+ override_dh_auto_build:
+ 	# In case we're installing to a non-standard location, look for a setup.sh
+-- 
+2.7.4
+

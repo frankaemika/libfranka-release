@@ -1,7 +1,7 @@
-From 50fc83b9056685e68c753fe90d628bae33b07bae Mon Sep 17 00:00:00 2001
+From 4ef0ebb2313dd8c648efb21f08543d379892237c Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 27 Sep 2017 17:34:04 +0200
-Subject: [PATCH] Customized Debian rules file
+Subject: [PATCH 1/2] Customized Debian rules file
 
 ---
  debian/rules.em | 3 ++-
