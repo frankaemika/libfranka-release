@@ -334,9 +334,9 @@ struct AutomaticErrorRecovery
 struct LoadModelLibrary : public CommandBase<LoadModelLibrary, Command::kLoadModelLibrary> {
   enum class Status : uint8_t { kSuccess, kError };
 
-  enum class Architecture : uint8_t { kX64 };
+  enum class Architecture : uint8_t { kX64, kX86 };
 
-  enum class System : uint8_t { kLinux };
+  enum class System : uint8_t { kLinux, kWindows };
 
   struct Request : public RequestBase<LoadModelLibrary> {
     Request(Architecture architecture, System system)
