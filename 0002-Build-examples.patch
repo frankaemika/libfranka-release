@@ -1,4 +1,4 @@
-From e7f8ccf2fc01883a7ac41b2329d661e95d1478aa Mon Sep 17 00:00:00 2001
+From 3cf8b513a25c8eabbb35c3ff2eaf8ca033062ea4 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 8 Aug 2018 13:32:33 +0200
 Subject: [PATCH 2/2] Build examples
@@ -21,5 +21,5 @@ index 8028ee9..09107bd 100755
  override_dh_auto_build:
  	# In case we're installing to a non-standard location, look for a setup.sh
 -- 
-2.7.4
+2.22.0
 
