@@ -1,3 +1,26 @@
+## libfranka (kinetic) - 0.7.0-1
+
+The packages in the `libfranka` repository were released into the `kinetic` distro by running `/usr/bin/bloom-release libfranka --rosdistro kinetic` on `Fri, 05 Jul 2019 13:01:09 -0000`
+
+The `libfranka` package was released.
+
+Version of package(s) in repository `libfranka`:
+
+- upstream repository: https://github.com/frankaemika/libfranka.git
+- release repository: https://github.com/frankaemika/libfranka-release.git
+- rosdistro version: `0.5.0-1`
+- old version: `0.5.0-1`
+- new version: `0.7.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.8.0`
+- catkin_pkg version: `0.4.12`
+- rosdep version: `0.15.2`
+- rosdistro version: `0.7.4`
+- vcstools version: `0.1.40`
+
+
 ## libfranka (kinetic) - 0.5.0-1
 
 The packages in the `libfranka` repository were released into the `kinetic` distro by running `/usr/bin/bloom-release --rosdistro kinetic --track kinetic libfranka` on `Fri, 10 Aug 2018 14:47:11 -0000`
