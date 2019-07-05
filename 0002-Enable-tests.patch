@@ -1,0 +1,25 @@
+From 17ee4b1ce944857e03537a36aef5d1b24184db07 Mon Sep 17 00:00:00 2001
+From: Florian Walch <florian.walch@franka.de>
+Date: Thu, 28 Sep 2017 10:39:20 +0200
+Subject: [PATCH 2/4] Enable tests
+
+---
+ rpm/template.spec.em | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rpm/template.spec.em b/rpm/template.spec.em
+index d8e9868..cdd42aa 100644
+--- a/rpm/template.spec.em
++++ b/rpm/template.spec.em
+@@ -31,7 +31,7 @@ mkdir -p obj-%{_target_platform} && cd obj-%{_target_platform}
+         -DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
+         -DBUILD_DOCUMENTATION=ON \
+         -DBUILD_EXAMPLES=OFF \
+-        -DBUILD_TESTS=OFF \
++        -DBUILD_TESTS=ON \
+         -DSETUPTOOLS_DEB_LAYOUT=OFF \
+         -DCATKIN_BUILD_BINARY_PACKAGE="1" \
+ 
+-- 
+2.7.4
+
