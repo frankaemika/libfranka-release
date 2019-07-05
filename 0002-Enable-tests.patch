@@ -1,4 +1,4 @@
-From 17ee4b1ce944857e03537a36aef5d1b24184db07 Mon Sep 17 00:00:00 2001
+From d9a9abf7a622e4c57e9aad420a8ae6644e24e879 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Thu, 28 Sep 2017 10:39:20 +0200
 Subject: [PATCH 2/4] Enable tests
@@ -21,5 +21,5 @@ index d8e9868..cdd42aa 100644
          -DCATKIN_BUILD_BINARY_PACKAGE="1" \
  
 -- 
-2.7.4
+2.22.0
 

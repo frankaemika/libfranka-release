@@ -1,4 +1,4 @@
-From 8ba0b5e36985029ba551656eb66f45505970d8c2 Mon Sep 17 00:00:00 2001
+From 32fd60264ae0ea04e8e0c90c0ebc58be6e135a8d Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Mon, 2 Oct 2017 15:49:17 +0200
 Subject: [PATCH 3/4] Disable documentation
@@ -21,5 +21,5 @@ index cdd42aa..812d077 100644
          -DBUILD_TESTS=ON \
          -DSETUPTOOLS_DEB_LAYOUT=OFF \
 -- 
-2.7.4
+2.22.0
 

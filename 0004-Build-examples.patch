@@ -1,4 +1,4 @@
-From 4be3bd98e5a965fce09b6602eeeb04f9bfc0da53 Mon Sep 17 00:00:00 2001
+From 45a4dbfd0f1196366281764b75e86f3f68d691f8 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 8 Aug 2018 13:32:50 +0200
 Subject: [PATCH 4/4] Build examples
@@ -21,5 +21,5 @@ index 812d077..a2fdb8a 100644
          -DSETUPTOOLS_DEB_LAYOUT=OFF \
          -DCATKIN_BUILD_BINARY_PACKAGE="1" \
 -- 
-2.7.4
+2.22.0
 
