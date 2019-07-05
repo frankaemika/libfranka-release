@@ -1,0 +1,61 @@
+From 5fcf2d4ef4b52f53038b196f272eb95f723978c2 Mon Sep 17 00:00:00 2001
+From: Florian Walch <florian.walch@franka.de>
+Date: Fri, 10 Aug 2018 16:45:28 +0200
+Subject: [PATCH 2/2] Install into catkin locations
+
+---
+ CMakeLists.txt          | 11 +++++------
+ examples/CMakeLists.txt |  5 ++---
+ 2 files changed, 7 insertions(+), 9 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f3dc28d..eaf4ab3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -71,7 +71,7 @@ set_target_properties(franka PROPERTIES
+ 
+ target_include_directories(franka PUBLIC
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+-  $<INSTALL_INTERFACE:include>
++  $<INSTALL_INTERFACE:include/libfranka>
+ )
+ 
+ target_link_libraries(franka PRIVATE
+@@ -83,15 +83,14 @@ target_link_libraries(franka PRIVATE
+ )
+ 
+ ## Installation
+-include(GNUInstallDirs)
+-set(INSTALL_CMAKE_CONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Franka)
++set(INSTALL_CMAKE_CONFIG_DIR share/franka/cmake)
+ 
+ install(TARGETS franka
+   EXPORT FrankaTargets
+-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++  LIBRARY DESTINATION lib
++  RUNTIME DESTINATION lib/libfranka
+ )
+-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++install(DIRECTORY include/ DESTINATION include/libfranka)
+ 
+ export(EXPORT FrankaTargets
+   NAMESPACE Franka::
+diff --git a/examples/CMakeLists.txt b/examples/CMakeLists.txt
+index 2bd2282..b3107f7 100644
+--- a/examples/CMakeLists.txt
++++ b/examples/CMakeLists.txt
+@@ -46,8 +46,7 @@ endforeach()
+ target_link_libraries(joint_impedance_control Threads::Threads)
+ target_link_libraries(motion_with_control Poco::Foundation)
+ 
+-include(GNUInstallDirs)
+ install(TARGETS ${EXAMPLES}
+-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++  LIBRARY DESTINATION lib
++  RUNTIME DESTINATION lib/libfranka
+ )
+-- 
+2.22.0
+
