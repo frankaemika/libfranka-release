@@ -39,11 +39,11 @@ tracks:
     devel_branch: null
     last_version: 0.7.0
     name: upstream
-    patches: kinetic
+    patches: melodic
     release_inc: '1'
     release_repo_url: null
     release_tag: :{version}
-    ros_distro: kinetic
+    ros_distro: melodic
     vcs_type: git
     vcs_uri: https://github.com/frankaemika/libfranka.git
     version: :{ask}
