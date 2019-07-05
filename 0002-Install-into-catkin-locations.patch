@@ -1,4 +1,4 @@
-From 87f361f2f635fe91ebf85dbfbf7bd6f99f61771e Mon Sep 17 00:00:00 2001
+From 5fcf2d4ef4b52f53038b196f272eb95f723978c2 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Fri, 10 Aug 2018 16:45:28 +0200
 Subject: [PATCH 2/2] Install into catkin locations
@@ -57,5 +57,5 @@ index 2bd2282..b3107f7 100644
 +  RUNTIME DESTINATION lib/libfranka
  )
 -- 
-2.7.4
+2.22.0
 
