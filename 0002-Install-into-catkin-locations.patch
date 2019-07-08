@@ -1,4 +1,4 @@
-From a9de192aab07924394b281887ba0ea219b2eb087 Mon Sep 17 00:00:00 2001
+From 3ebd7dd7b985846b3b1672d49898c42daaf2afee Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Fri, 10 Aug 2018 16:45:28 +0200
 Subject: [PATCH 2/2] Install into catkin locations
