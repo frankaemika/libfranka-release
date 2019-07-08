@@ -1,4 +1,4 @@
-From 5fcf2d4ef4b52f53038b196f272eb95f723978c2 Mon Sep 17 00:00:00 2001
+From 224934492d5c12d1ee1e5df27bfa032c10b59bc0 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Fri, 10 Aug 2018 16:45:28 +0200
 Subject: [PATCH 2/2] Install into catkin locations
@@ -9,10 +9,10 @@ Subject: [PATCH 2/2] Install into catkin locations
  2 files changed, 7 insertions(+), 9 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index f3dc28d..eaf4ab3 100644
+index f839ceb..b3a5250 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -71,7 +71,7 @@ set_target_properties(franka PROPERTIES
+@@ -97,7 +97,7 @@ endif()
  
  target_include_directories(franka PUBLIC
    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -21,7 +21,7 @@ index f3dc28d..eaf4ab3 100644
  )
  
  target_link_libraries(franka PRIVATE
-@@ -83,15 +83,14 @@ target_link_libraries(franka PRIVATE
+@@ -109,15 +109,14 @@ target_link_libraries(franka PRIVATE
  )
  
  ## Installation
@@ -42,7 +42,7 @@ index f3dc28d..eaf4ab3 100644
  export(EXPORT FrankaTargets
    NAMESPACE Franka::
 diff --git a/examples/CMakeLists.txt b/examples/CMakeLists.txt
-index 2bd2282..b3107f7 100644
+index 341f80c..d810d02 100644
 --- a/examples/CMakeLists.txt
 +++ b/examples/CMakeLists.txt
 @@ -46,8 +46,7 @@ endforeach()
