@@ -1,4 +1,4 @@
-From 3cf8b513a25c8eabbb35c3ff2eaf8ca033062ea4 Mon Sep 17 00:00:00 2001
+From d9dba484be4acc900d194a8d399e0b293fe94454 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 8 Aug 2018 13:32:33 +0200
 Subject: [PATCH 2/2] Build examples
