@@ -1,4 +1,4 @@
-From d9a9abf7a622e4c57e9aad420a8ae6644e24e879 Mon Sep 17 00:00:00 2001
+From ea016068267e441dcd6c6a442facc3a9aaa333c6 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Thu, 28 Sep 2017 10:39:20 +0200
 Subject: [PATCH 2/4] Enable tests
