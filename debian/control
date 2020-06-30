@@ -1,0 +1,12 @@
+Source: ros-melodic-libfranka
+Section: misc
+Priority: optional
+Maintainer: Franka Emika GmbH <support@franka.de>
+Build-Depends: debhelper (>= 9.0.0), cmake, libeigen3-dev, libpoco-dev
+Homepage: https://frankaemika.github.io
+Standards-Version: 3.9.2
+
+Package: ros-melodic-libfranka
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libpoco-dev, ros-melodic-catkin
+Description: libfranka is a C++ library for Franka Emika research robots
