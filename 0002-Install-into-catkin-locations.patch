@@ -1,4 +1,4 @@
-From 3ebd7dd7b985846b3b1672d49898c42daaf2afee Mon Sep 17 00:00:00 2001
+From 5bdf657e1870b282c7d42d1e1339d0f47b204c27 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Fri, 10 Aug 2018 16:45:28 +0200
 Subject: [PATCH 2/2] Install into catkin locations
@@ -9,7 +9,7 @@ Subject: [PATCH 2/2] Install into catkin locations
  2 files changed, 7 insertions(+), 9 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index f839ceb..b3a5250 100644
+index 0184d16..c275a2a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -97,7 +97,7 @@ endif()
@@ -57,5 +57,5 @@ index 341f80c..d810d02 100644
 +  RUNTIME DESTINATION lib/libfranka
  )
 -- 
-2.22.0
+2.25.1
 
