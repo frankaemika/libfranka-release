@@ -1,4 +1,4 @@
-From 457fede43212549aa577cd77f766a59aced1296a Mon Sep 17 00:00:00 2001
+From 6a62d4c232b2989d6e00eaf0d52bb7242d2f1dbc Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 27 Sep 2017 17:34:04 +0200
 Subject: [PATCH 1/2] Customized Debian rules file
@@ -22,5 +22,5 @@ index aa010fa..8028ee9 100755
  override_dh_auto_build:
  	# In case we're installing to a non-standard location, look for a setup.sh
 -- 
-2.22.0
+2.25.1
 
