@@ -36,6 +36,7 @@ set(EXAMPLES
   joint_point_to_point_motion
   motion_with_control
   print_joint_poses
+  vacuum_object
 )
 
 foreach(example ${EXAMPLES})
@@ -46,7 +47,8 @@ endforeach()
 target_link_libraries(joint_impedance_control Threads::Threads)
 target_link_libraries(motion_with_control Poco::Foundation)
 
+include(GNUInstallDirs)
 install(TARGETS ${EXAMPLES}
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/libfranka
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
