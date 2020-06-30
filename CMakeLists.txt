@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project(libfranka
-  VERSION 0.7.1
+  VERSION 0.8.0
   LANGUAGES CXX
 )
 
@@ -70,6 +70,8 @@ add_library(franka SHARED
   src/robot.cpp
   src/robot_impl.cpp
   src/robot_state.cpp
+  src/vacuum_gripper.cpp
+  src/vacuum_gripper_state.cpp
 )
 add_library(Franka::Franka ALIAS franka)
 
@@ -97,7 +99,7 @@ endif()
 
 target_include_directories(franka PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/libfranka>
+  $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(franka PRIVATE
@@ -109,14 +111,15 @@ target_link_libraries(franka PRIVATE
 )
 
 ## Installation
-set(INSTALL_CMAKE_CONFIG_DIR share/franka/cmake)
+include(GNUInstallDirs)
+set(INSTALL_CMAKE_CONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Franka)
 
 install(TARGETS franka
   EXPORT FrankaTargets
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/libfranka
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-install(DIRECTORY include/ DESTINATION include/libfranka)
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 export(EXPORT FrankaTargets
   NAMESPACE Franka::
@@ -141,9 +144,6 @@ install(EXPORT FrankaTargets
   NAMESPACE Franka::
   DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
 )
-
-# Install catkin package.xml
-install(FILES package.xml DESTINATION share/libfranka)
 
 ## Subprojects
 
@@ -190,7 +190,7 @@ endif()
 set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Franka Emika GmbH")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libpoco-dev")
-set(CPACK_DEBIAN_PACKAGE_CONFLICTS "ros-kinetic-libfranka")
+set(CPACK_DEBIAN_PACKAGE_CONFLICTS "ros-kinetic-libfranka, ros-melodic-libfranka")
 
 include(CPack)
 
