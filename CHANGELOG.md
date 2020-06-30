@@ -1,6 +1,19 @@
 # CHANGELOG
 
-## 0.7.1 - 2019-06-08
+## 0.8.0 - 2020-04-29
+
+Requires Panda system version >= 4.0.0
+
+ * **BREAKING** Change behavior of `franka::Robot::setEE`. Previously, this method would set the
+   flange-to-end-effector transformation `F_T_EE`. This has been split up into two transformations:
+   `F_T_NE`, only settable in Desk, and `NE_T_EE`, which can be set in `libfranka` with `setEE` and
+   defaults to the identity transformation.
+ * Add `F_T_NE` and `NE_T_EE` to `franka::RobotState`.
+ * Add support for the cobot pump with `franka::VacuumGripper`.
+ * CPack: Add conflict with `ros-melodic-libfranka`.
+ * Fix missing include for Windows (#55).
+
+## 0.7.1 - 2019-07-08
 
 Requires Panda system version >= 3.0.0
 
@@ -8,7 +21,7 @@ Requires Panda system version >= 3.0.0
 
  * Fix compilation error on ARM.
 
-## 0.7.0 - 2019-06-05
+## 0.7.0 - 2019-07-05
 
 Requires Panda system version >= 3.0.0
 
@@ -43,6 +56,8 @@ Requires Panda system version >= 3.0.0
  * Improved documentation for `franka::Robot::setCollisionBehavior`.
 
 ## 0.5.0 - 2018-08-08
+
+Requires Panda system version >= 1.3.0
 
 ### Motion and control interfaces
 
