@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project(libfranka
-  VERSION 0.7.1
+  VERSION 0.8.0
   LANGUAGES CXX
 )
 
@@ -70,6 +70,8 @@ add_library(franka SHARED
   src/robot.cpp
   src/robot_impl.cpp
   src/robot_state.cpp
+  src/vacuum_gripper.cpp
+  src/vacuum_gripper_state.cpp
 )
 add_library(Franka::Franka ALIAS franka)
 
@@ -188,7 +190,7 @@ endif()
 set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Franka Emika GmbH")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libpoco-dev")
-set(CPACK_DEBIAN_PACKAGE_CONFLICTS "ros-kinetic-libfranka")
+set(CPACK_DEBIAN_PACKAGE_CONFLICTS "ros-kinetic-libfranka, ros-melodic-libfranka")
 
 include(CPack)
 
