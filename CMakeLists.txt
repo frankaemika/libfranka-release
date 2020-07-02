@@ -99,7 +99,7 @@ endif()
 
 target_include_directories(franka PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:include/libfranka>
 )
 
 target_link_libraries(franka PRIVATE
@@ -111,15 +111,14 @@ target_link_libraries(franka PRIVATE
 )
 
 ## Installation
-include(GNUInstallDirs)
-set(INSTALL_CMAKE_CONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Franka)
+set(INSTALL_CMAKE_CONFIG_DIR share/franka/cmake)
 
 install(TARGETS franka
   EXPORT FrankaTargets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/libfranka
 )
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY include/ DESTINATION include/libfranka)
 
 export(EXPORT FrankaTargets
   NAMESPACE Franka::
@@ -144,6 +143,9 @@ install(EXPORT FrankaTargets
   NAMESPACE Franka::
   DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
 )
+
+# Install catkin package.xml
+install(FILES package.xml DESTINATION share/libfranka)
 
 ## Subprojects
 
