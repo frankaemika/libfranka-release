@@ -1,4 +1,4 @@
-From ea016068267e441dcd6c6a442facc3a9aaa333c6 Mon Sep 17 00:00:00 2001
+From 3e37ecefa31a5e27fd94bc77d16ada7531b43511 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Thu, 28 Sep 2017 10:39:20 +0200
 Subject: [PATCH 2/4] Enable tests
@@ -8,18 +8,18 @@ Subject: [PATCH 2/4] Enable tests
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/rpm/template.spec.em b/rpm/template.spec.em
-index d8e9868..cdd42aa 100644
+index ee56bc7..69bd951 100644
 --- a/rpm/template.spec.em
 +++ b/rpm/template.spec.em
-@@ -31,7 +31,7 @@ mkdir -p obj-%{_target_platform} && cd obj-%{_target_platform}
-         -DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
-         -DBUILD_DOCUMENTATION=ON \
-         -DBUILD_EXAMPLES=OFF \
--        -DBUILD_TESTS=OFF \
-+        -DBUILD_TESTS=ON \
-         -DSETUPTOOLS_DEB_LAYOUT=OFF \
-         -DCATKIN_BUILD_BINARY_PACKAGE="1" \
- 
+@@ -46,7 +46,7 @@ mkdir -p obj-%{_target_platform} && cd obj-%{_target_platform}
+     -DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
+     -DBUILD_DOCUMENTATION=ON \
+     -DBUILD_EXAMPLES=OFF \
+-    -DBUILD_TESTS=OFF \
++    -DBUILD_TESTS=ON \
+     -DSETUPTOOLS_DEB_LAYOUT=OFF \
+     -DCATKIN_BUILD_BINARY_PACKAGE="1" \
+     ..
 -- 
-2.22.0
+2.25.1
 

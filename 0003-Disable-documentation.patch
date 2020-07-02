@@ -1,4 +1,4 @@
-From b84d03bda6e4604ef5b6bdcfc852ebab303d1d40 Mon Sep 17 00:00:00 2001
+From b1ebc52bbe59179b0a9442ab999f6be11b533e0a Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Mon, 2 Oct 2017 15:49:17 +0200
 Subject: [PATCH 3/4] Disable documentation
@@ -8,18 +8,18 @@ Subject: [PATCH 3/4] Disable documentation
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/rpm/template.spec.em b/rpm/template.spec.em
-index cdd42aa..812d077 100644
+index 69bd951..02d001d 100644
 --- a/rpm/template.spec.em
 +++ b/rpm/template.spec.em
-@@ -29,7 +29,7 @@ mkdir -p obj-%{_target_platform} && cd obj-%{_target_platform}
-         -DCMAKE_INSTALL_LIBDIR="lib" \
-         -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
-         -DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
--        -DBUILD_DOCUMENTATION=ON \
-+        -DBUILD_DOCUMENTATION=OFF \
-         -DBUILD_EXAMPLES=OFF \
-         -DBUILD_TESTS=ON \
-         -DSETUPTOOLS_DEB_LAYOUT=OFF \
+@@ -44,7 +44,7 @@ mkdir -p obj-%{_target_platform} && cd obj-%{_target_platform}
+     -DCMAKE_INSTALL_LIBDIR="lib" \
+     -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
+     -DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
+-    -DBUILD_DOCUMENTATION=ON \
++    -DBUILD_DOCUMENTATION=OFF \
+     -DBUILD_EXAMPLES=OFF \
+     -DBUILD_TESTS=ON \
+     -DSETUPTOOLS_DEB_LAYOUT=OFF \
 -- 
-2.22.0
+2.25.1
 

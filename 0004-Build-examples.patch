@@ -1,4 +1,4 @@
-From e1cf61ce0b0673869bfe1bd450f6bdc88e592298 Mon Sep 17 00:00:00 2001
+From 2ec4051f1f95203bd6a8aef52b69643ba630c196 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 8 Aug 2018 13:32:50 +0200
 Subject: [PATCH 4/4] Build examples
@@ -8,18 +8,18 @@ Subject: [PATCH 4/4] Build examples
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/rpm/template.spec.em b/rpm/template.spec.em
-index 812d077..a2fdb8a 100644
+index 02d001d..8ee1121 100644
 --- a/rpm/template.spec.em
 +++ b/rpm/template.spec.em
-@@ -30,7 +30,7 @@ mkdir -p obj-%{_target_platform} && cd obj-%{_target_platform}
-         -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
-         -DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
-         -DBUILD_DOCUMENTATION=OFF \
--        -DBUILD_EXAMPLES=OFF \
-+        -DBUILD_EXAMPLES=ON \
-         -DBUILD_TESTS=ON \
-         -DSETUPTOOLS_DEB_LAYOUT=OFF \
-         -DCATKIN_BUILD_BINARY_PACKAGE="1" \
+@@ -45,7 +45,7 @@ mkdir -p obj-%{_target_platform} && cd obj-%{_target_platform}
+     -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
+     -DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
+     -DBUILD_DOCUMENTATION=OFF \
+-    -DBUILD_EXAMPLES=OFF \
++    -DBUILD_EXAMPLES=ON \
+     -DBUILD_TESTS=ON \
+     -DSETUPTOOLS_DEB_LAYOUT=OFF \
+     -DCATKIN_BUILD_BINARY_PACKAGE="1" \
 -- 
-2.22.0
+2.25.1
 
