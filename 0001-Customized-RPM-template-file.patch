@@ -1,4 +1,4 @@
-From 5c915e749d0bca7b494eb33d07b6be28395e1461 Mon Sep 17 00:00:00 2001
+From 062429bf62144c88ac25a406155e46483519a546 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 27 Sep 2017 17:34:44 +0200
 Subject: [PATCH 1/4] Customized RPM template file

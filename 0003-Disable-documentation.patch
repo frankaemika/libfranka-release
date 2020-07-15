@@ -1,4 +1,4 @@
-From b1ebc52bbe59179b0a9442ab999f6be11b533e0a Mon Sep 17 00:00:00 2001
+From abc616d744e0249e673d774a237277516fc856b7 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Mon, 2 Oct 2017 15:49:17 +0200
 Subject: [PATCH 3/4] Disable documentation
