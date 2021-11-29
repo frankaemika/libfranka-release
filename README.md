@@ -1,3 +1,26 @@
+## libfranka (foxy) - 0.8.0-1
+
+The packages in the `libfranka` repository were released into the `foxy` distro by running `/usr/bin/bloom-release --rosdistro foxy --track foxy libfranka` on `Mon, 29 Nov 2021 13:59:26 -0000`
+
+The `libfranka` package was released.
+
+Version of package(s) in repository `libfranka`:
+
+- upstream repository: https://github.com/frankaemika/libfranka.git
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `null`
+- new version: `0.8.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.10.7`
+- catkin_pkg version: `0.4.24`
+- rosdep version: `0.21.0`
+- rosdistro version: `0.8.3`
+- vcstools version: `0.1.42`
+
+
 ## libfranka (noetic) - 0.8.0-4
 
 The packages in the `libfranka` repository were released into the `noetic` distro by running `/usr/bin/bloom-release -r noetic libfranka` on `Wed, 15 Jul 2020 10:16:34 -0000`
