@@ -1,0 +1,12 @@
+Source: ros-foxy-libfranka
+Section: misc
+Priority: optional
+Maintainer: Franka Emika GmbH <support@franka.de>
+Build-Depends: debhelper (>= 9.0.0), libeigen3-dev, libpoco-dev, python3-colcon-common-extensions, ros-foxy-ament-cmake, ros-foxy-ros-workspace
+Homepage: https://frankaemika.github.io
+Standards-Version: 3.9.2
+
+Package: ros-foxy-libfranka
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libpoco-dev, ros-foxy-ros-workspace
+Description: libfranka is a C++ library for Franka Emika research robots
