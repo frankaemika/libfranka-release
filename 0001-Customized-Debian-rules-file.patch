@@ -1,4 +1,4 @@
-From f244878c3041532841b85df2817ca42b059bbb85 Mon Sep 17 00:00:00 2001
+From 85a05260b8a127db2e1081debd213ab41a4435b0 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 27 Sep 2017 17:34:04 +0200
 Subject: [PATCH 1/2] Customized Debian rules file
@@ -8,15 +8,15 @@ Subject: [PATCH 1/2] Customized Debian rules file
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/debian/rules.em b/debian/rules.em
-index aa010fa..8028ee9 100755
+index 3342408..0c941cd 100755
 --- a/debian/rules.em
 +++ b/debian/rules.em
-@@ -26,7 +26,8 @@ override_dh_auto_configure:
- 	# in the install tree that was dropped by catkin, and source it.  It will
- 	# set things like CMAKE_PREFIX_PATH, PKG_CONFIG_PATH, and PYTHONPATH.
+@@ -31,7 +31,8 @@ override_dh_auto_configure:
  	if [ -f "@(InstallationPrefix)/setup.sh" ]; then . "@(InstallationPrefix)/setup.sh"; fi && \
--	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)"
-+	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
+ 	dh_auto_configure -- \
+ 		-DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
+-		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)"
++		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
 +		-DBUILD_DOCUMENTATION=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=ON
  
  override_dh_auto_build:

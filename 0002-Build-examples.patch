@@ -1,4 +1,4 @@
-From d9e1086023637cec5e6e0a8f4f05dcc71af188ed Mon Sep 17 00:00:00 2001
+From e6a5aed598cf0e5fb8171a9c831b9693ced50d67 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 8 Aug 2018 13:32:33 +0200
 Subject: [PATCH 2/2] Build examples
@@ -8,13 +8,13 @@ Subject: [PATCH 2/2] Build examples
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/debian/rules.em b/debian/rules.em
-index 8028ee9..09107bd 100755
+index 0c941cd..8caba1b 100755
 --- a/debian/rules.em
 +++ b/debian/rules.em
-@@ -27,7 +27,7 @@ override_dh_auto_configure:
- 	# set things like CMAKE_PREFIX_PATH, PKG_CONFIG_PATH, and PYTHONPATH.
- 	if [ -f "@(InstallationPrefix)/setup.sh" ]; then . "@(InstallationPrefix)/setup.sh"; fi && \
- 	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
+@@ -32,7 +32,7 @@ override_dh_auto_configure:
+ 	dh_auto_configure -- \
+ 		-DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
+ 		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
 -		-DBUILD_DOCUMENTATION=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=ON
 +		-DBUILD_DOCUMENTATION=OFF -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON
  
