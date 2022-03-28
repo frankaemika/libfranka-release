@@ -123,7 +123,7 @@ T Network::udpBlockingReceiveUnsafe() try {
   int bytes_received =
       udp_socket_.receiveFrom(buffer.data(), static_cast<int>(buffer.size()), udp_server_address_);
 
-  if (bytes_received != buffer.size()) {
+  if (bytes_received != static_cast<int>(buffer.size())) {
     throw ProtocolException("libfranka: incorrect object size");
   }
 
@@ -148,6 +148,10 @@ void Network::udpSend(const T& data) try {
 
 template <typename T>
 void Network::tcpReadFromBuffer(std::chrono::microseconds timeout) try {
+  if (tcp_socket_.poll(0, Poco::Net::Socket::SELECT_ERROR)) {
+    throw NetworkException("libfranka: TCP connection got interrupted.");
+  }
+
   if (!tcp_socket_.poll(timeout.count(), Poco::Net::Socket::SELECT_READ)) {
     return;
   }
