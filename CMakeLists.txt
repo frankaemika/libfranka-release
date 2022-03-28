@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.4)
 project(libfranka
-  VERSION 0.8.0
+  VERSION 0.9.0
   LANGUAGES CXX
 )
 
-list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
+list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,7 +16,7 @@ else()
   add_compile_options(-Wall -Wextra)
 endif()
 
-set(THIRDPARTY_SOURCES_DIR "${CMAKE_SOURCE_DIR}/3rdparty" CACHE PATH
+set(THIRDPARTY_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty" CACHE PATH
   "Directory for third-party sources")
 
 ## Dependencies
@@ -99,7 +99,7 @@ endif()
 
 target_include_directories(franka PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/libfranka>
+  $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(franka PRIVATE
@@ -111,14 +111,15 @@ target_link_libraries(franka PRIVATE
 )
 
 ## Installation
-set(INSTALL_CMAKE_CONFIG_DIR share/franka/cmake)
+include(GNUInstallDirs)
+set(INSTALL_CMAKE_CONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Franka)
 
 install(TARGETS franka
   EXPORT FrankaTargets
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/libfranka
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-install(DIRECTORY include/ DESTINATION include/libfranka)
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 export(EXPORT FrankaTargets
   NAMESPACE Franka::
@@ -143,9 +144,6 @@ install(EXPORT FrankaTargets
   NAMESPACE Franka::
   DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
 )
-
-# Install catkin package.xml
-install(FILES package.xml DESTINATION share/libfranka)
 
 ## Subprojects
 
