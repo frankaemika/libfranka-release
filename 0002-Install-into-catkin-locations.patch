@@ -1,4 +1,4 @@
-From 5bdf657e1870b282c7d42d1e1339d0f47b204c27 Mon Sep 17 00:00:00 2001
+From 4a6711ca836d2c3e9a4629dd7c38d34fab865b2b Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Fri, 10 Aug 2018 16:45:28 +0200
 Subject: [PATCH 2/2] Install into catkin locations
@@ -9,10 +9,10 @@ Subject: [PATCH 2/2] Install into catkin locations
  2 files changed, 7 insertions(+), 9 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 0184d16..c275a2a 100644
+index ef919fd..e2e3426 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -97,7 +97,7 @@ endif()
+@@ -99,7 +99,7 @@ endif()
  
  target_include_directories(franka PUBLIC
    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -21,7 +21,7 @@ index 0184d16..c275a2a 100644
  )
  
  target_link_libraries(franka PRIVATE
-@@ -109,15 +109,14 @@ target_link_libraries(franka PRIVATE
+@@ -111,15 +111,14 @@ target_link_libraries(franka PRIVATE
  )
  
  ## Installation
@@ -42,10 +42,10 @@ index 0184d16..c275a2a 100644
  export(EXPORT FrankaTargets
    NAMESPACE Franka::
 diff --git a/examples/CMakeLists.txt b/examples/CMakeLists.txt
-index 341f80c..d810d02 100644
+index 5233e48..f94eb1a 100644
 --- a/examples/CMakeLists.txt
 +++ b/examples/CMakeLists.txt
-@@ -46,8 +46,7 @@ endforeach()
+@@ -47,8 +47,7 @@ endforeach()
  target_link_libraries(joint_impedance_control Threads::Threads)
  target_link_libraries(motion_with_control Poco::Foundation)
  
