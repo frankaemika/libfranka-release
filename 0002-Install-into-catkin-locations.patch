@@ -1,18 +1,18 @@
-From e35a75be6518200458ee59a448b1726394bc2787 Mon Sep 17 00:00:00 2001
+From 615f5907ae6013d05a5387b67bef0c1d1312ec72 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Fri, 10 Aug 2018 16:45:28 +0200
 Subject: [PATCH 2/2] Install into catkin locations
 
 ---
- CMakeLists.txt          | 11 +++++------
+ CMakeLists.txt          | 14 +++++++-------
  examples/CMakeLists.txt |  5 ++---
- 2 files changed, 7 insertions(+), 9 deletions(-)
+ 2 files changed, 9 insertions(+), 10 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 7559988..018dbd9 100644
+index 39d0c26..4255744 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -99,7 +99,7 @@ endif()
+@@ -104,7 +104,7 @@ endif()
  
  target_include_directories(franka PUBLIC
    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -21,7 +21,7 @@ index 7559988..018dbd9 100644
  )
  
  target_link_libraries(franka PRIVATE
-@@ -111,15 +111,14 @@ target_link_libraries(franka PRIVATE
+@@ -116,16 +116,16 @@ target_link_libraries(franka PRIVATE
  )
  
  ## Installation
@@ -33,19 +33,22 @@ index 7559988..018dbd9 100644
    EXPORT FrankaTargets
 -  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 -  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++<<<<<<< HEAD
 +  LIBRARY DESTINATION lib
 +  RUNTIME DESTINATION lib/libfranka
++  ARCHIVE DESTINATION lib
  )
--install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-+install(DIRECTORY include/ DESTINATION include/libfranka)
+-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
++install(DIRECTORY include/ DESTINATION include/libfranka}
+   USE_SOURCE_PERMISSIONS
+ )
  
- export(EXPORT FrankaTargets
-   NAMESPACE Franka::
 diff --git a/examples/CMakeLists.txt b/examples/CMakeLists.txt
-index 5233e48..f94eb1a 100644
+index 5e281f8..1cac57c 100644
 --- a/examples/CMakeLists.txt
 +++ b/examples/CMakeLists.txt
-@@ -47,8 +47,7 @@ endforeach()
+@@ -49,8 +49,7 @@ endforeach()
  target_link_libraries(joint_impedance_control Threads::Threads)
  target_link_libraries(motion_with_control Poco::Foundation)
  
