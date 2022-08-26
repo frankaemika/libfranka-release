@@ -6,6 +6,8 @@
 
 #include <franka/rate_limiting.h>
 
+#include "helpers.h"
+
 using namespace franka;
 
 const double kNoLimit{std::numeric_limits<double>::max()};
@@ -42,29 +44,12 @@ std::array<double, 16> integrateOneSample(std::array<double, 16> last_pose,
   Eigen::Map<Eigen::Matrix<double, 6, 1>> dx(twist.data());
   Eigen::Matrix3d omega_skew;
   omega_skew << 0, -dx[5], dx[4], dx[5], 0, -dx[3], -dx[4], dx[3], 0;
-  pose.linear() << pose.linear() + omega_skew * pose.linear() * delta_t;
+  pose.linear() << pose.rotation() + omega_skew * pose.rotation() * delta_t;
   pose.translation() << pose.translation() + dx.head(3) * delta_t;
 
   std::array<double, 16> pose_after_integration{};
   Eigen::Map<Eigen::Matrix4d>(&pose_after_integration[0], 4, 4) = pose.matrix();
   return pose_after_integration;
-}
-
-std::array<double, 6> differentiateOneSample(std::array<double, 16> value,
-                                             std::array<double, 16> last_value,
-                                             double delta_t) {
-  Eigen::Affine3d pose(Eigen::Matrix4d::Map(value.data()));
-  Eigen::Affine3d last_pose(Eigen::Matrix4d::Map(last_value.data()));
-  Eigen::Matrix<double, 6, 1> dx;
-
-  dx.head(3) << (pose.translation() - last_pose.translation()) / delta_t;
-  auto delta_rotation = (pose.linear() - pose.linear()) / delta_t;
-  Eigen::Matrix3d rotational_twist = delta_rotation * last_pose.linear();
-  dx.tail(3) << rotational_twist(2, 1), rotational_twist(0, 2), rotational_twist(1, 0);
-
-  std::array<double, 6> twist{};
-  Eigen::Map<Eigen::Matrix<double, 6, 1>>(&twist[0], 6, 1) = dx;
-  return twist;
 }
 
 bool violatesLimits(double desired_value, double max_value) {
@@ -517,4 +502,17 @@ TEST(RateLimiting, CartesianPose) {
       kNoLimit, max_translational_acceleration, kNoLimit, kNoLimit, max_rotational_acceleration,
       kNoLimit, differentiateOneSample(limited_cartesian_pose, last_cmd_pose, kDeltaT),
       last_cmd_velocity, last_cmd_acceleration, kDeltaT));
+}
+
+TEST(RateLimiting, CartesianPoseIntegrationAndDifferentation) {
+  std::array<double, 16> last_cmd_pose{
+      {0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0}};
+  std::array<double, 6> last_cmd_velocity{{1.0, 2.0, 3.0, 0.4, 0.5, 0.3}};
+
+  std::array<double, 16> cartesian_pose =
+      integrateOneSample(last_cmd_pose, last_cmd_velocity, kDeltaT);
+  auto twist = differentiateOneSample(cartesian_pose, last_cmd_pose, kDeltaT);
+  for (int i = 0; i < 6; ++i) {
+    ASSERT_NEAR(twist[i], last_cmd_velocity[i], 1e-6);
+  }
 }

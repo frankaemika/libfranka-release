@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.4)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(SetVersionFromGit)
+set_version_from_git(libfranka_VERSION libfranka_TAG)
+
 project(libfranka
-  VERSION 0.9.0
+  VERSION ${libfranka_VERSION}
   LANGUAGES CXX
 )
 
@@ -99,7 +104,7 @@ endif()
 
 target_include_directories(franka PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/libfranka>
+  $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(franka PRIVATE
@@ -111,14 +116,18 @@ target_link_libraries(franka PRIVATE
 )
 
 ## Installation
-set(INSTALL_CMAKE_CONFIG_DIR share/franka/cmake)
+include(GNUInstallDirs)
+set(INSTALL_CMAKE_CONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Franka)
 
 install(TARGETS franka
   EXPORT FrankaTargets
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/libfranka
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-install(DIRECTORY include/ DESTINATION include/libfranka)
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  USE_SOURCE_PERMISSIONS
+)
 
 export(EXPORT FrankaTargets
   NAMESPACE Franka::
@@ -144,17 +153,10 @@ install(EXPORT FrankaTargets
   DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
 )
 
-# Install catkin package.xml
-install(FILES package.xml DESTINATION share/libfranka)
-
 ## Subprojects
 
 # Ignore find_package(Franka) in subprojects.
-macro(find_package)
-  if(NOT "${ARGV0}" STREQUAL Franka AND NOT DEFINED "${ARGV0}_FOUND")
-    _find_package(${ARGV})
-  endif()
-endmacro()
+set(FRANKA_IS_FOUND TRUE)
 
 option(BUILD_TESTS "Build tests" ON)
 if(BUILD_TESTS)
@@ -175,25 +177,17 @@ endif()
 ## Packaging
 set(CPACK_PACKAGE_VENDOR "Franka Emika GmbH")
 set(CPACK_GENERATOR "DEB;TGZ")
-set(CPACK_PACKAGE_VERSION ${libfranka_VERSION})
+set(CPACK_PACKAGE_VERSION ${libfranka_TAG})
 set(CPACK_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
-# Debian
-find_program(DPKG_PROG dpkg DOC "'dpkg' executable")
-if(DPKG_PROG)
-  execute_process(COMMAND ${DPKG_PROG} --print-architecture
-    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  # Change system name to use the correct architecture in file name
-  set(CPACK_SYSTEM_NAME ${CPACK_DEBIAN_PACKAGE_ARCHITECTURE})
-endif()
+include(SetDebianPackageName)
+set_debian_package_name(CPACK_PACKAGE_FILE_NAME)
+
 # Debian versions require a dash
 set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Franka Emika GmbH")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libpoco-dev")
-set(CPACK_DEBIAN_PACKAGE_CONFLICTS "ros-kinetic-libfranka, ros-melodic-libfranka")
-
+set(CPACK_DEBIAN_PACKAGE_CONFLICTS "ros-kinetic-libfranka, ros-melodic-libfranka, ros-noetic-libfranka, ros-foxy-libfranka")
 include(CPack)
 
 ## Tools
