@@ -1,22 +1,21 @@
-From b62caeec8ae43740c4ea09421600a12a8a4f5349 Mon Sep 17 00:00:00 2001
+From 39506520c70d95c50c87e1d87e0d301df9c285bd Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 27 Sep 2017 17:34:04 +0200
 Subject: [PATCH 1/2] Customized Debian rules file
 
 ---
- debian/rules.em | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ debian/rules.em | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/debian/rules.em b/debian/rules.em
-index 3342408..0c941cd 100755
+index 284a071..9fca3fd 100755
 --- a/debian/rules.em
 +++ b/debian/rules.em
-@@ -31,7 +31,8 @@ override_dh_auto_configure:
- 	if [ -f "@(InstallationPrefix)/setup.sh" ]; then . "@(InstallationPrefix)/setup.sh"; fi && \
+@@ -37,7 +37,7 @@ override_dh_auto_configure:
  	dh_auto_configure -- \
  		-DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
--		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)"
-+		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
+ 		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
+-		$(BUILD_TESTING_ARG)
 +		-DBUILD_DOCUMENTATION=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=ON
  
  override_dh_auto_build:

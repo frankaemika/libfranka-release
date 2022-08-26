@@ -1,4 +1,4 @@
-From 36a2f52b14928d4f0ecacdeb0a98a8d62cb9f4a0 Mon Sep 17 00:00:00 2001
+From 6cba48bc2ae1d6873da2f1886d2071feb4182444 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 8 Aug 2018 13:32:33 +0200
 Subject: [PATCH 2/2] Build examples
@@ -8,10 +8,10 @@ Subject: [PATCH 2/2] Build examples
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/debian/rules.em b/debian/rules.em
-index 0c941cd..8caba1b 100755
+index 9fca3fd..253693f 100755
 --- a/debian/rules.em
 +++ b/debian/rules.em
-@@ -32,7 +32,7 @@ override_dh_auto_configure:
+@@ -37,7 +37,7 @@ override_dh_auto_configure:
  	dh_auto_configure -- \
  		-DCMAKE_INSTALL_PREFIX="@(InstallationPrefix)" \
  		-DCMAKE_PREFIX_PATH="@(InstallationPrefix)" \
