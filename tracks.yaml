@@ -65,7 +65,7 @@ tracks:
     - git-bloom-generate -y rosrpm --prefix release/:{ros_distro} :{ros_distro} -i
       :{release_inc} --os-name rhel
     devel_branch: null
-    last_version: 0.9.0
+    last_version: 0.9.1
     name: upstream
     patches: melodic
     release_inc: '1'
