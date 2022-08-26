@@ -3,13 +3,25 @@
 #include "helpers.h"
 
 #include <cstdlib>
+#include <sstream>
 
 #include <gtest/gtest.h>
+#include <Eigen/Dense>
 
 #include "load_calculations.h"
 
 bool stringContains(const std::string& actual, const std::string& expected) {
   return actual.find(expected) != std::string::npos;
+}
+
+std::vector<std::string> splitAt(const std::string& s, char delimiter) {
+  std::string token;
+  std::vector<std::string> tokens;
+  std::stringstream ss(s);
+  while (std::getline(ss, token, delimiter)) {
+    tokens.push_back(token);
+  }
+  return tokens;
 }
 
 void testRobotStateIsZero(const franka::RobotState& actual) {
@@ -238,7 +250,7 @@ void testRobotStatesAreEqual(const research_interface::robot::RobotState& expect
   EXPECT_EQ(expected.message_id, actual.time.toMSec());
   EXPECT_EQ(expected.control_command_success_rate, actual.control_command_success_rate);
 
-  franka::RobotMode expected_robot_mode;
+  franka::RobotMode expected_robot_mode = franka::RobotMode::kOther;
   switch (expected.robot_mode) {
     case research_interface::robot::RobotMode::kOther:
       expected_robot_mode = franka::RobotMode::kOther;
@@ -641,6 +653,23 @@ void testGripperStatesAreEqual(const research_interface::gripper::GripperState& 
   EXPECT_EQ(expected.max_width, actual.max_width);
   EXPECT_EQ(expected.is_grasped, actual.is_grasped);
   EXPECT_EQ(expected.temperature, actual.temperature);
+}
+
+std::array<double, 6> differentiateOneSample(std::array<double, 16> value,
+                                             std::array<double, 16> last_value,
+                                             double delta_t) {
+  Eigen::Affine3d pose(Eigen::Matrix4d::Map(value.data()));
+  Eigen::Affine3d last_pose(Eigen::Matrix4d::Map(last_value.data()));
+  Eigen::Matrix<double, 6, 1> dx;
+
+  dx.head(3) << (pose.translation() - last_pose.translation()) / delta_t;
+  auto delta_rotation = (pose.linear() - last_pose.linear()) / delta_t;
+  Eigen::Matrix3d rotational_twist = delta_rotation * last_pose.linear().transpose();
+  dx.tail(3) << rotational_twist(2, 1), rotational_twist(0, 2), rotational_twist(1, 0);
+
+  std::array<double, 6> twist{};
+  Eigen::Map<Eigen::Matrix<double, 6, 1>>(&twist[0], 6, 1) = dx;
+  return twist;
 }
 
 namespace research_interface {
