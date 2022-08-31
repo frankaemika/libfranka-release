@@ -1,4 +1,4 @@
-From 4496e344822f985c352793ee7c1ad8d8d8fe8fd4 Mon Sep 17 00:00:00 2001
+From 1b7e89202c17a5dd376945fb544ff1d0eb95fec7 Mon Sep 17 00:00:00 2001
 From: Florian Walch <florian.walch@franka.de>
 Date: Wed, 27 Sep 2017 17:33:12 +0200
 Subject: [PATCH 1/2] Added install rule for package.xml
