@@ -1,3 +1,0 @@
-- builder: doxygen
-  file_patterns: "*/include/franka/*.h *.dox"
-  javadoc_autobrief: YES
