@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.4)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(SetVersionFromGit)
-set_version_from_git(libfranka_VERSION libfranka_TAG)
+
+set(libfranka_VERSION 0.9.2)
 
 project(libfranka
   VERSION ${libfranka_VERSION}
@@ -104,7 +104,7 @@ endif()
 
 target_include_directories(franka PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/libfranka>
+  $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(franka PRIVATE
@@ -116,15 +116,16 @@ target_link_libraries(franka PRIVATE
 )
 
 ## Installation
-set(INSTALL_CMAKE_CONFIG_DIR share/franka/cmake)
+include(GNUInstallDirs)
+set(INSTALL_CMAKE_CONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Franka)
 
 install(TARGETS franka
   EXPORT FrankaTargets
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/libfranka
-  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-install(DIRECTORY include/ DESTINATION include/libfranka}
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   USE_SOURCE_PERMISSIONS
 )
 
@@ -152,9 +153,6 @@ install(EXPORT FrankaTargets
   DESTINATION ${INSTALL_CMAKE_CONFIG_DIR}
 )
 
-# Install catkin package.xml
-install(FILES package.xml DESTINATION share/libfranka)
-
 ## Subprojects
 
 # Ignore find_package(Franka) in subprojects.
@@ -179,11 +177,8 @@ endif()
 ## Packaging
 set(CPACK_PACKAGE_VENDOR "Franka Emika GmbH")
 set(CPACK_GENERATOR "DEB;TGZ")
-set(CPACK_PACKAGE_VERSION ${libfranka_TAG})
+set(CPACK_PACKAGE_VERSION ${libfranka_VERSION})
 set(CPACK_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_PROCESSOR})
-
-include(SetDebianPackageName)
-set_debian_package_name(CPACK_PACKAGE_FILE_NAME)
 
 # Debian versions require a dash
 set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1)
