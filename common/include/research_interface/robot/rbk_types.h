@@ -15,7 +15,8 @@ enum class MotionGeneratorMode : uint8_t {
   kJointPosition,
   kJointVelocity,
   kCartesianPosition,
-  kCartesianVelocity
+  kCartesianVelocity,
+  kNone
 };
 
 enum class ControllerMode : uint8_t {
@@ -96,6 +97,7 @@ struct MotionGeneratorCommand {
 
 struct ControllerCommand {
   std::array<double, 7> tau_J_d;
+  bool torque_command_finished;
 };
 
 struct RobotCommand {

@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Franka Emika GmbH
+// Copyright (c) 2023 Franka Robotics GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #include <gmock/gmock.h>
 
@@ -7,11 +7,18 @@
 #include <thread>
 #include <utility>
 
+#include <franka/active_control.h>
+#include <franka/active_torque_control.h>
+#include <franka/control_types.h>
 #include <franka/exception.h>
 #include <franka/lowpass_filter.h>
 #include <franka/robot.h>
+#include <research_interface/robot/service_types.h>
+#include <robot_impl.h>
 
 #include "helpers.h"
+#include "mock_robot.h"
+#include "mock_robot_impl.h"
 #include "mock_server.h"
 
 using ::testing::_;
@@ -23,6 +30,7 @@ using research_interface::robot::StopMove;
 using namespace research_interface;
 
 using namespace franka;
+using namespace std::chrono_literals;
 
 TEST(Robot, CannotConnectIfNoServerRunning) {
   EXPECT_THROW(Robot robot("127.0.0.1"), NetworkException)
@@ -115,6 +123,7 @@ TEST(Robot, CanControlRobot) {
                       robot_state.robot_mode = robot::RobotMode::kMove;
                     });
                     std::this_thread::yield();
+                    std::this_thread::sleep_for(1ms);
                   }
                   return continue_sending;
                 })
@@ -206,6 +215,7 @@ TEST(Robot, StopAfterControllerChange) {
                       robot_state.robot_mode = robot::RobotMode::kMove;
                     });
                     std::this_thread::yield();
+                    std::this_thread::sleep_for(1ms);
                   }
                   return continue_sending;
                 })
@@ -280,6 +290,7 @@ TEST(Robot, StopAfterMotionAndControllerChange) {
                       robot_state.robot_mode = robot::RobotMode::kMove;
                     });
                     std::this_thread::yield();
+                    std::this_thread::sleep_for(1ms);
                   }
                   return continue_sending;
                 })
@@ -354,6 +365,7 @@ TEST(Robot, StopAfterMotionGeneratorChange) {
                       robot_state.robot_mode = robot::RobotMode::kMove;
                     });
                     std::this_thread::yield();
+                    std::this_thread::sleep_for(1ms);
                   }
                   return continue_sending;
                 })
@@ -446,6 +458,7 @@ TEST(Robot, ThrowsIfConflictingOperationIsRunning) {
                InvalidOperationException);
   EXPECT_THROW(robot.read(std::function<bool(const RobotState&)>()), InvalidOperationException);
   EXPECT_THROW(robot.readOnce(), InvalidOperationException);
+  EXPECT_THROW(robot.startTorqueControl(), InvalidOperationException);
 
   server.ignoreUdpBuffer();
 
@@ -455,4 +468,31 @@ TEST(Robot, ThrowsIfConflictingOperationIsRunning) {
   if (thread.joinable()) {
     thread.join();
   }
+}
+
+TEST(RobotMock, CanStartOnlyOneControl) {
+  RobotMockServer server;
+  auto network = std::make_unique<Network>("127.0.0.1", robot::kCommandPort);
+
+  auto robot_impl_mock =
+      std::make_shared<RobotImplMock>(std::move(network), 0, RealtimeConfig::kIgnore);
+  RobotMock robot(robot_impl_mock);
+
+  server.sendEmptyState<robot::RobotState>().spinOnce();
+
+  const robot::Move::Deviation kDefaultDeviation{10.0, 3.12, 2 * M_PI};
+  auto motion_generator_mode = Move::MotionGeneratorMode::kJointVelocity;
+  auto controller_mode = Move::ControllerMode::kExternalController;
+
+  EXPECT_CALL(*robot_impl_mock, startMotion(controller_mode, motion_generator_mode,
+                                            kDefaultDeviation, kDefaultDeviation))
+      .Times(2)
+      .WillRepeatedly(::testing::Return(100));
+
+  EXPECT_CALL(*robot_impl_mock, cancelMotion(100)).Times(2);
+
+  EXPECT_NO_THROW(auto control = robot.startTorqueControl());
+
+  auto control = robot.startTorqueControl();
+  EXPECT_THROW(robot.startTorqueControl(), InvalidOperationException);
 }

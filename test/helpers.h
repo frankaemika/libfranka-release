@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Franka Emika GmbH
+// Copyright (c) 2023 Franka Robotics GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #pragma once
 
@@ -72,5 +72,6 @@ bool operator==(const Move::Deviation& left, const Move::Deviation& right);
 namespace franka {
 
 bool operator==(const Errors& lhs, const Errors& rhs);
+bool operator==(const RobotState& lhs, const RobotState& rhs);
 
 }  // namespace franka

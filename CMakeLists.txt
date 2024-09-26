@@ -2,16 +2,26 @@ cmake_minimum_required(VERSION 3.4)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-set(libfranka_VERSION 0.9.2)
+set(libfranka_VERSION 0.13.6)
 
 project(libfranka
   VERSION ${libfranka_VERSION}
   LANGUAGES CXX
 )
 
+option(BUILD_DOCUMENTATION "Build documentation" OFF)
+option(SKIP_CXX_BUILD "Skips the c++ build" OFF)
+if(BUILD_DOCUMENTATION)
+  add_subdirectory(doc)
+
+  if(SKIP_CXX_BUILD)
+    return()
+  endif()
+endif()
+
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -54,6 +64,9 @@ add_subdirectory(common)
 
 ## Library
 add_library(franka SHARED
+  src/active_control.cpp
+  src/active_motion_generator.cpp
+  src/active_torque_control.cpp
   src/control_loop.cpp
   src/control_tools.cpp
   src/control_types.cpp
@@ -112,6 +125,9 @@ target_link_libraries(franka PRIVATE
   Poco::Net
   Eigen3::Eigen3
   Threads::Threads
+)
+
+target_link_libraries(franka PUBLIC
   libfranka-common
 )
 
@@ -119,13 +135,13 @@ target_link_libraries(franka PRIVATE
 include(GNUInstallDirs)
 set(INSTALL_CMAKE_CONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Franka)
 
-install(TARGETS franka
+install(TARGETS franka libfranka-common
   EXPORT FrankaTargets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+install(DIRECTORY include/ common/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   USE_SOURCE_PERMISSIONS
 )
 
@@ -169,22 +185,17 @@ if(BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
-option(BUILD_DOCUMENTATION "Build documentation" OFF)
-if(BUILD_DOCUMENTATION)
-  add_subdirectory(doc)
-endif()
-
 ## Packaging
-set(CPACK_PACKAGE_VENDOR "Franka Emika GmbH")
+set(CPACK_PACKAGE_VENDOR "Franka Robotics GmbH")
 set(CPACK_GENERATOR "DEB;TGZ")
 set(CPACK_PACKAGE_VERSION ${libfranka_VERSION})
 set(CPACK_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
 # Debian versions require a dash
 set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1)
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Franka Emika GmbH")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Franka Robotics GmbH")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libpoco-dev")
-set(CPACK_DEBIAN_PACKAGE_CONFLICTS "ros-kinetic-libfranka, ros-melodic-libfranka, ros-noetic-libfranka, ros-foxy-libfranka")
+set(CPACK_DEBIAN_PACKAGE_CONFLICTS "ros-kinetic-libfranka, ros-melodic-libfranka, ros-noetic-libfranka, ros-foxy-libfranka, ros-humble-libfranka")
 include(CPack)
 
 ## Tools
@@ -221,7 +232,10 @@ if(CLANG_FORMAT_PROG)
     COMMENT "Checking code formatting with clang-format"
     VERBATIM
   )
+else(CLANG_FORMAT_PROG)
+  MESSAGE(WARNING "Could not find clang-format-6.0")
 endif()
+
 find_program(CLANG_TIDY_PROG clang-tidy-6.0 DOC "'clang-tidy' executable")
 if(CLANG_TIDY_PROG)
   # Build JSON string for clang-tidy's line filter
@@ -246,4 +260,6 @@ if(CLANG_TIDY_PROG)
     COMMENT "Running clang-tidy"
     VERBATIM
   )
+else(CLANG_TIDY_PROG)
+  MESSAGE(WARNING "Could not find clang-tidy-6.0")
 endif()

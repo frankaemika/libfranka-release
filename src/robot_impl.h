@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Franka Emika GmbH
+// Copyright (c) 2023 Franka Robotics GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #pragma once
 
@@ -32,7 +32,34 @@ class Robot::Impl : public RobotControl {
 
   void throwOnMotionError(const RobotState& robot_state, uint32_t motion_id) override;
 
-  RobotState readOnce();
+  virtual RobotState readOnce();
+
+  /**
+   * Updates the joint-level based torque commands of an active joint effort control
+   *
+   * @param control_input the new joint-level based torques
+   *
+   * @throw ControlException if an error related to torque control or motion generation occurred.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
+   * @throw std::invalid_argument if joint-level torque commands are NaN or infinity.
+   */
+  virtual void writeOnce(const Torques& control_input);
+
+  virtual void writeOnce(const JointPositions& motion_generator_input);
+  virtual void writeOnce(const JointVelocities& motion_generator_input);
+  virtual void writeOnce(const CartesianPose& motion_generator_input);
+  virtual void writeOnce(const CartesianVelocities& motion_generator_input);
+
+  virtual void writeOnce(const JointPositions& motion_generator_input,
+                         const Torques& control_input);
+
+  virtual void writeOnce(const JointVelocities& motion_generator_input,
+                         const Torques& control_input);
+
+  virtual void writeOnce(const CartesianPose& motion_generator_input, const Torques& control_input);
+
+  virtual void writeOnce(const CartesianVelocities& motion_generator_input,
+                         const Torques& control_input);
 
   ServerVersion serverVersion() const noexcept;
   RealtimeConfig realtimeConfig() const noexcept override;
@@ -47,16 +74,47 @@ class Robot::Impl : public RobotControl {
                     const research_interface::robot::MotionGeneratorCommand* motion_command,
                     const research_interface::robot::ControllerCommand* control_command) override;
 
+  /**
+   * Finishes a running torque-control
+   *
+   * @param motion_id the id of the running control process
+   * @param control_input the final control-input
+   */
+  void finishMotion(uint32_t motion_id, const Torques& control_input);
+
   template <typename T, typename... TArgs>
   uint32_t executeCommand(TArgs... /* args */);
 
   Model loadModel() const;
+
+  research_interface::robot::ControllerCommand createControllerCommand(
+      const Torques& control_input);
+
+  research_interface::robot::MotionGeneratorCommand createMotionCommand(
+      const JointPositions& motion_input);
+
+  research_interface::robot::MotionGeneratorCommand createMotionCommand(
+      const JointVelocities& motion_input);
+
+  research_interface::robot::MotionGeneratorCommand createMotionCommand(
+      const CartesianPose& motion_input);
+
+  research_interface::robot::MotionGeneratorCommand createMotionCommand(
+      const CartesianVelocities& motion_input);
 
  protected:
   bool motionGeneratorRunning() const noexcept;
   bool controllerRunning() const noexcept;
 
  private:
+  RobotState current_state_;
+
+  template <typename MotionGeneratorType>
+  void writeOnce(const MotionGeneratorType& motion_generator_input);
+
+  template <typename MotionGeneratorType>
+  void writeOnce(const MotionGeneratorType& motion_generator_input, const Torques& control_input);
+
   std::string commandNotPossibleMsg() const {
     std::stringstream ss;
     ss << " command rejected: command not possible in the current mode ("
@@ -85,6 +143,10 @@ class Robot::Impl : public RobotControl {
       case T::Status::kInvalidArgumentRejected:
         throw CommandException("libfranka: "s + research_interface::robot::CommandTraits<T>::kName +
                                " command rejected: invalid argument!");
+      case T::Status::kCommandRejectedDueToActivatedSafetyFunctions:
+        throw CommandException("libfranka: "s + research_interface::robot::CommandTraits<T>::kName +
+                               " command rejected due to activated safety function! Please disable "
+                               "all safety functions. ");
       default:
         throw ProtocolException("libfranka: Unexpected response while handling "s +
                                 research_interface::robot::CommandTraits<T>::kName + " command!");
@@ -102,6 +164,10 @@ class Robot::Impl : public RobotControl {
       case T::Status::kCommandNotPossibleRejected:
         throw CommandException("libfranka: "s + research_interface::robot::CommandTraits<T>::kName +
                                commandNotPossibleMsg());
+      case T::Status::kCommandRejectedDueToActivatedSafetyFunctions:
+        throw CommandException("libfranka: "s + research_interface::robot::CommandTraits<T>::kName +
+                               " command rejected due to activated safety function! Please disable "
+                               "all safety functions.");
       default:
         throw ProtocolException("libfranka: Unexpected response while handling "s +
                                 research_interface::robot::CommandTraits<T>::kName + " command!");
@@ -187,6 +253,18 @@ inline void Robot::Impl::handleCommandResponse<research_interface::robot::Move>(
           "libfranka: "s +
           research_interface::robot::CommandTraits<research_interface::robot::Move>::kName +
           " command aborted!");
+    case research_interface::robot::Move::Status::kPreemptedDueToActivatedSafetyFunctions:
+      throw CommandException(
+          "libfranka: "s +
+          research_interface::robot::CommandTraits<research_interface::robot::Move>::kName +
+          " command preempted due to activated safety function! Please disable all safety "
+          "functions.");
+    case research_interface::robot::Move::Status::kCommandRejectedDueToActivatedSafetyFunctions:
+      throw CommandException(
+          "libfranka: "s +
+          research_interface::robot::CommandTraits<research_interface::robot::Move>::kName +
+          " command rejected due to activated safety function! Please disable all safety "
+          "functions.");
     default:
       throw ProtocolException(
           "libfranka: Unexpected response while handling "s +
@@ -223,6 +301,12 @@ inline void Robot::Impl::handleCommandResponse<research_interface::robot::StopMo
           "libfranka: "s +
           research_interface::robot::CommandTraits<research_interface::robot::StopMove>::kName +
           " command aborted: motion aborted by reflex!");
+    case research_interface::robot::StopMove::Status::kCommandRejectedDueToActivatedSafetyFunctions:
+      throw CommandException(
+          "libfranka: "s +
+          research_interface::robot::CommandTraits<research_interface::robot::Move>::kName +
+          " command rejected due to activated safety function! Please disable all safety "
+          "functions.");
     default:
       throw ProtocolException(
           "libfranka: Unexpected response while handling "s +
@@ -265,6 +349,13 @@ inline void Robot::Impl::handleCommandResponse<research_interface::robot::Automa
                              research_interface::robot::CommandTraits<
                                  research_interface::robot::AutomaticErrorRecovery>::kName +
                              " command aborted!");
+    case research_interface::robot::AutomaticErrorRecovery::Status::
+        kCommandRejectedDueToActivatedSafetyFunctions:
+      throw CommandException(
+          "libfranka: "s +
+          research_interface::robot::CommandTraits<research_interface::robot::Move>::kName +
+          " command rejected due to activated safety function! Please disable all safety "
+          "functions.");
     default:
       throw ProtocolException("libfranka: Unexpected response while handling "s +
                               research_interface::robot::CommandTraits<
@@ -278,25 +369,6 @@ uint32_t Robot::Impl::executeCommand(TArgs... args) {
   uint32_t command_id = network_->tcpSendRequest<T>(args...);
   typename T::Response response = network_->tcpBlockingReceiveResponse<T>(command_id);
   handleCommandResponse<T>(response);
-  return command_id;
-}
-
-template <>
-inline uint32_t Robot::Impl::
-    executeCommand<research_interface::robot::GetCartesianLimit, int32_t, VirtualWallCuboid*>(
-        int32_t id,
-        VirtualWallCuboid* virtual_wall_cuboid) {
-  using research_interface::robot::GetCartesianLimit;
-  uint32_t command_id = network_->tcpSendRequest<GetCartesianLimit>(id);
-  GetCartesianLimit::Response response =
-      network_->tcpBlockingReceiveResponse<GetCartesianLimit>(command_id);
-
-  virtual_wall_cuboid->p_frame = response.object_frame;
-  virtual_wall_cuboid->object_world_size = response.object_world_size;
-  virtual_wall_cuboid->active = response.object_activation;
-  virtual_wall_cuboid->id = id;
-
-  handleCommandResponse<GetCartesianLimit>(response);
   return command_id;
 }
 

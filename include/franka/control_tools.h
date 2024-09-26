@@ -1,9 +1,11 @@
-// Copyright (c) 2019 Franka Emika GmbH
+// Copyright (c) 2023 Franka Robotics GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cmath>
+#include <stdexcept>
 #include <string>
 
 /**
@@ -73,5 +75,48 @@ bool hasRealtimeKernel();
  * @return True if successful, false otherwise.
  */
 bool setCurrentThreadToHighestSchedulerPriority(std::string* error_message);
+
+/**
+ * Checks if all elements of an array of the size N have a finite value
+ *
+ * @tparam N the size of the array
+ * @param array the array to be checked
+ */
+template <size_t N>
+inline void checkFinite(const std::array<double, N>& array) {
+  if (!std::all_of(array.begin(), array.end(),
+                   [](double array_element) { return std::isfinite(array_element); })) {
+    throw std::invalid_argument("Commanding value is infinite or NaN.");
+  }
+}
+
+/**
+ * Checks if all elements of the transformation matrix are finite and if it is a homogeneous
+ * transformation
+ *
+ * @param transform the transformation matrix to check
+ */
+inline void checkMatrix(const std::array<double, 16>& transform) {
+  checkFinite(transform);
+  if (!isHomogeneousTransformation(transform)) {
+    throw std::invalid_argument(
+        "libfranka: Attempt to set invalid transformation in motion generator. Has to be column "
+        "major!");
+  }
+}
+
+/**
+ * Checks if all elements of the elbow vector are finite and if the elbow configuration is valid
+ *
+ * @param elbow the elbow vector to check
+ */
+inline void checkElbow(const std::array<double, 2>& elbow) {
+  checkFinite(elbow);
+  if (!isValidElbow(elbow)) {
+    throw std::invalid_argument(
+        "Invalid elbow configuration given! Only +1 or -1 are allowed for the sign of the 4th "
+        "joint.");
+  }
+}
 
 }  // namespace franka

@@ -21,11 +21,6 @@ struct CommandTraits<StopMove> {
 };
 
 template <>
-struct CommandTraits<GetCartesianLimit> {
-  static constexpr const char* kName = "Get Cartesian Limit";
-};
-
-template <>
 struct CommandTraits<SetCollisionBehavior> {
   static constexpr const char* kName = "Set Collision Behavior";
 };
@@ -58,11 +53,6 @@ struct CommandTraits<SetNEToEE> {
 template <>
 struct CommandTraits<SetLoad> {
   static constexpr const char* kName = "Set Load";
-};
-
-template <>
-struct CommandTraits<SetFilters> {
-  static constexpr const char* kName = "Set Filters";
 };
 
 template <>

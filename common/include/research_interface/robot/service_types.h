@@ -14,14 +14,13 @@ namespace robot {
 
 using Version = uint16_t;
 
-constexpr Version kVersion = 5;
+constexpr Version kVersion = 7;
 constexpr uint16_t kCommandPort = 1337;
 
 enum class Command : uint32_t {
   kConnect,
   kMove,
   kStopMove,
-  kGetCartesianLimit,
   kSetCollisionBehavior,
   kSetJointImpedance,
   kSetCartesianImpedance,
@@ -29,7 +28,6 @@ enum class Command : uint32_t {
   kSetEEToK,
   kSetNEToEE,
   kSetLoad,
-  kSetFilters,
   kAutomaticErrorRecovery,
   kLoadModelLibrary
 };
@@ -89,7 +87,11 @@ struct CommandBase {
 
   static constexpr Command kCommand = C;
 
-  enum class Status : uint8_t { kSuccess, kCommandNotPossibleRejected };
+  enum class Status : uint8_t {
+    kSuccess,
+    kCommandNotPossibleRejected,
+    kCommandRejectedDueToActivatedSafetyFunctions
+  };
 
   using Header = CommandHeader;
   using Request = RequestBase<T>;
@@ -100,7 +102,12 @@ struct CommandBase {
 
 template <typename T, Command C>
 struct GetterSetterCommandBase : CommandBase<T, C> {
-  enum class Status : uint8_t { kSuccess, kCommandNotPossibleRejected, kInvalidArgumentRejected };
+  enum class Status : uint8_t {
+    kSuccess,
+    kCommandNotPossibleRejected,
+    kInvalidArgumentRejected,
+    kCommandRejectedDueToActivatedSafetyFunctions
+  };
 };
 
 struct Connect : CommandBase<Connect, Command::kConnect> {
@@ -131,13 +138,16 @@ struct Move : public CommandBase<Move, Command::kMove> {
     kJointPosition,
     kJointVelocity,
     kCartesianPosition,
-    kCartesianVelocity
+    kCartesianVelocity,
+    kNone
   };
 
   enum class Status : uint8_t {
     kSuccess,
     kMotionStarted,
     kPreempted,
+    kPreemptedDueToActivatedSafetyFunctions,
+    kCommandRejectedDueToActivatedSafetyFunctions,
     kCommandNotPossibleRejected,
     kStartAtSingularPoseRejected,
     kInvalidArgumentRejected,
@@ -176,34 +186,10 @@ struct StopMove : public CommandBase<StopMove, Command::kStopMove> {
   enum class Status : uint8_t {
     kSuccess,
     kCommandNotPossibleRejected,
+    kCommandRejectedDueToActivatedSafetyFunctions,
     kEmergencyAborted,
     kReflexAborted,
     kAborted
-  };
-};
-
-struct GetCartesianLimit
-    : public GetterSetterCommandBase<GetCartesianLimit, Command::kGetCartesianLimit> {
-  struct Request : public RequestBase<GetCartesianLimit> {
-    Request(int32_t id) : id(id) {}
-
-    const int32_t id;
-  };
-
-  struct Response : public ResponseBase<GetCartesianLimit> {
-    Response(Status status,
-             const std::array<double, 3>& object_world_size,
-             const std::array<double, 16>& object_frame,
-             bool object_activation)
-        : ResponseBase(status),
-          object_world_size(object_world_size),
-          object_frame(object_frame),
-          object_activation(object_activation) {}
-    Response(Status status) : Response(status, {}, {}, false) {}
-
-    const std::array<double, 3> object_world_size;
-    const std::array<double, 16> object_frame;
-    const bool object_activation;
   };
 };
 
@@ -298,32 +284,12 @@ struct SetLoad : public GetterSetterCommandBase<SetLoad, Command::kSetLoad> {
   };
 };
 
-struct SetFilters : public GetterSetterCommandBase<SetFilters, Command::kSetFilters> {
-  struct Request : public RequestBase<SetFilters> {
-    Request(double joint_position_filter_frequency,
-            double joint_velocity_filter_frequency,
-            double cartesian_position_filter_frequency,
-            double cartesian_velocity_filter_frequency,
-            double controller_filter_frequency)
-        : joint_position_filter_frequency(joint_position_filter_frequency),
-          joint_velocity_filter_frequency(joint_velocity_filter_frequency),
-          cartesian_position_filter_frequency(cartesian_position_filter_frequency),
-          cartesian_velocity_filter_frequency(cartesian_velocity_filter_frequency),
-          controller_filter_frequency(controller_filter_frequency) {}
-
-    const double joint_position_filter_frequency;
-    const double joint_velocity_filter_frequency;
-    const double cartesian_position_filter_frequency;
-    const double cartesian_velocity_filter_frequency;
-    const double controller_filter_frequency;
-  };
-};
-
 struct AutomaticErrorRecovery
     : public CommandBase<AutomaticErrorRecovery, Command::kAutomaticErrorRecovery> {
   enum class Status : uint8_t {
     kSuccess,
     kCommandNotPossibleRejected,
+    kCommandRejectedDueToActivatedSafetyFunctions,
     kManualErrorRecoveryRequiredRejected,
     kReflexAborted,
     kEmergencyAborted,

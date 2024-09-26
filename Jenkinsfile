@@ -12,6 +12,7 @@ pipeline {
   }
   options {
     parallelsAlwaysFailFast()
+    timeout(time: 1, unit: 'HOURS')
   }
   environment {
     VERSION = feDetermineVersionFromGit()
@@ -29,7 +30,7 @@ pipeline {
         axes {
           axis {
             name 'DISTRO'
-            values 'bionic', 'focal'
+            values 'focal'
           }
         }
         stages {
@@ -141,7 +142,7 @@ pipeline {
                               reportFiles: 'index.html',
                               reportName: "Code Coverage (${env.DISTRO})"])
                 }
-              } 
+              }
             }
           }
           stage('Test') {

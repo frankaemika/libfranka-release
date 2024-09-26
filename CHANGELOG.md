@@ -1,6 +1,69 @@
 # CHANGELOG
 
+## 0.13.6 - 2024-09-05
+
+Requires Franka Research 3 system version >= 5.5.0
+
+ * Hotfix: set realtime scheduling for active control
+ * Hotfix: Fix readOnce for active control 
+
+## 0.13.4 - 2024-09-05
+
+Requires Franka Research 3 system version >= 5.5.0
+
+ * Added package.xml for ros humble release
+
+## 0.13.3 - 2024-01-18
+
+Requires Franka Research 3 system version >= 5.5.0
+
+ * Bump libfranka-common version compatible with 5.5.0
+ * Delete the temporary-workaround max-path-pose deviation. Fixed in the system image.
+
+## 0.13.2 - 2023-12-04
+
+ * Hotfix: (temporary-workaround) for max-path-pose-deviation in ExternalMode for active control.
+
+
+## 0.13.1 - 2023-11-30
+
+ * Hotfix: (temporary-workaround) for max-path-pose-deviation in ExternalMode for callback based control.
+
+## 0.13.0 - 2023-11-16
+
+ * Add abstract ActiveControlBase class for the ActiveControllers to implement.
+ * **BREAKING** Fix function naming errors in robot class.
+ * **BREAKING** ActiveController initializer functions return ActiveControlBase
+
+## 0.12.1 - 2023-09-20
+
+ * Fix install common/include typo
+
+## 0.12.0 - 2023-09-14
+
+Requires Franka Research 3 system version >= 5.2.0
+
+ * **BREAKING** ActiveControl serves now as base class for ActiveTorqueControl, that implements the torque control functionality
+ * ActiveMotionGenerator class introduced to support external control loops for JointPositions, JointVelocities, CartesianPose and CartesianVelocities
+
+## 0.11.0 - 2023-08-16
+
+Requires Franka Research 3 system version >= 5.2.0
+
+ * **BREAKING** Instead of using constants, velocity limits in rate-limiter are computed based on the current desired joint position.
+ * Allow external control loops by the introduction of the ActiveControl read-write-interface for torque-control
+
+## 0.10.0 - 2022-09-02
+
+Requires Franka Research 3 system version >= 5.2.0
+
+ * **BREAKING** Remove getVirtualWall and setFilters commands
+ * **BREAKING** Disable rate-limiter by default
+ * **BREAKING** Adapt rate limiting values in `rate_limiting.h` for FR3 robot
+
 ## 0.9.2 - 2022-08-31
+
+Requires Panda system version >= 4.2.1
 
  * Revert usage of `set_version_from_git` in CMakeLists.txt, using hardcoded values instead
 
@@ -10,7 +73,7 @@ Requires Panda system version >= 4.2.1
 
  * Use orthonormalized rotations in `cartesianLowpassFilter`, `limitRate` and `cartesian_impedance_control` example
  * Support building libfranka from outside the library, so the debian package name can be set externally.
- * Check if Github remote is always in sync
+ * Check if GitHub remote is always in sync
  * Bug fixes in `rate_limiting_tests.cpp`
  * Make column names in `logToCSV` unique, separated them by state & cmd
  * Improve error messages including current `RobotMode` information
@@ -19,7 +82,7 @@ Requires Panda system version >= 4.2.1
 
 Requires Panda system version >= 4.2.1
 
- * **BREAKING** Add `O_ddP_O` base acceleration to robot state, harcoded to `{0, 0, -9.81}`.
+ * **BREAKING** Add `O_ddP_O` base acceleration to robot state, hardcoded to `{0, 0, -9.81}`.
  * **BREAKING** New `base_acceleration_initialization_timeout`, `base_acceleration_invalid_reading`
                 `cartesian_spline_motion_generator_violation` and
                 `joint_via_motion_generator_planning_joint_limit_violation` reflexes.
@@ -166,7 +229,7 @@ Requires Panda system version >= 1.1.0
 
   * **WARNING** Not all robot errors can be recovered using the guiding button
     on the robot anymore. To manually recover from such errors, please use the
-    the Franka DESK web interface.
+    Franka DESK web interface.
   * Added logs to `ControlException` and improved exception messages.
   * Fail earlier (by throwing exception) if any of the commanded values are
     `NaN` or `infinity`.

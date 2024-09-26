@@ -1,8 +1,10 @@
-// Copyright (c) 2017 Franka Emika GmbH
+// Copyright (c) 2023 Franka Robotics GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #pragma once
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <limits>
 
 /**
@@ -26,9 +28,11 @@ constexpr double kLimitEps = 1e-3;
 constexpr double kNormEps = std::numeric_limits<double>::epsilon();
 /**
  * Number of packets lost considered for the definition of velocity limits.
- * When a packet is lost, FCI assumes a constant acceleration model
+ * When a packet is lost, FCI assumes a constant acceleration model.
+ * For FR3 there are no expected package loses. Therefore this number is set to 0. If you
+ * encounter package loses with your setup you can increase this number
  */
-constexpr double kTolNumberPacketsLost = 3.0;
+constexpr double kTolNumberPacketsLost = 0.0;
 /**
  * Factor for the definition of rotational limits using the Cartesian Pose interface
  */
@@ -43,46 +47,47 @@ constexpr std::array<double, 7> kMaxTorqueRate{
  * Maximum joint jerk
  */
 constexpr std::array<double, 7> kMaxJointJerk{
-    {7500.0 - kLimitEps, 3750.0 - kLimitEps, 5000.0 - kLimitEps, 6250.0 - kLimitEps,
-     7500.0 - kLimitEps, 10000.0 - kLimitEps, 10000.0 - kLimitEps}};
+    {5000.0 - kLimitEps, 5000.0 - kLimitEps, 5000.0 - kLimitEps, 5000.0 - kLimitEps,
+     5000.0 - kLimitEps, 5000.0 - kLimitEps, 5000.0 - kLimitEps}};
 /**
  * Maximum joint acceleration
  */
 constexpr std::array<double, 7> kMaxJointAcceleration{
-    {15.0000 - kLimitEps, 7.500 - kLimitEps, 10.0000 - kLimitEps, 12.5000 - kLimitEps,
-     15.0000 - kLimitEps, 20.0000 - kLimitEps, 20.0000 - kLimitEps}};
+    {10.0000 - kLimitEps, 10.0000 - kLimitEps, 10.0000 - kLimitEps, 10.0000 - kLimitEps,
+     10.0000 - kLimitEps, 10.0000 - kLimitEps, 10.0000 - kLimitEps}};
 /**
- * Maximum joint velocity
+ * Tolerance value for joint velocity limits to deal with numerical errors and data losses.
  */
-constexpr std::array<double, 7> kMaxJointVelocity{
-    {2.1750 - kLimitEps - kTolNumberPacketsLost * kDeltaT * kMaxJointAcceleration[0],
-     2.1750 - kLimitEps - kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[1],
-     2.1750 - kLimitEps - kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[2],
-     2.1750 - kLimitEps - kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[3],
-     2.6100 - kLimitEps - kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[4],
-     2.6100 - kLimitEps - kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[5],
-     2.6100 - kLimitEps - kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[6]}};
+constexpr std::array<double, 7> kJointVelocityLimitsTolerance{
+    kLimitEps + kTolNumberPacketsLost * kDeltaT * kMaxJointAcceleration[0],
+    kLimitEps + kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[1],
+    kLimitEps + kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[2],
+    kLimitEps + kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[3],
+    kLimitEps + kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[4],
+    kLimitEps + kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[5],
+    kLimitEps + kTolNumberPacketsLost* kDeltaT* kMaxJointAcceleration[6],
+};
 /**
  * Maximum translational jerk
  */
-constexpr double kMaxTranslationalJerk = 6500.0 - kLimitEps;
+constexpr double kMaxTranslationalJerk = 4500.0 - kLimitEps;
 /**
  * Maximum translational acceleration
  */
-constexpr double kMaxTranslationalAcceleration = 13.0000 - kLimitEps;
+constexpr double kMaxTranslationalAcceleration = 9.0000 - kLimitEps;
 /**
  * Maximum translational velocity
  */
 constexpr double kMaxTranslationalVelocity =
-    2.0000 - kLimitEps - kTolNumberPacketsLost * kDeltaT * kMaxTranslationalAcceleration;
+    3.0000 - kLimitEps - kTolNumberPacketsLost * kDeltaT * kMaxTranslationalAcceleration;
 /**
  * Maximum rotational jerk
  */
-constexpr double kMaxRotationalJerk = 12500.0 - kLimitEps;
+constexpr double kMaxRotationalJerk = 8500.0 - kLimitEps;
 /**
  * Maximum rotational acceleration
  */
-constexpr double kMaxRotationalAcceleration = 25.0000 - kLimitEps;
+constexpr double kMaxRotationalAcceleration = 17.0000 - kLimitEps;
 /**
  * Maximum rotational velocity
  */
@@ -100,7 +105,65 @@ constexpr double kMaxElbowAcceleration = 10.0000 - kLimitEps;
  * Maximum elbow velocity
  */
 constexpr double kMaxElbowVelocity =
-    2.1750 - kLimitEps - kTolNumberPacketsLost * kDeltaT * kMaxElbowAcceleration;
+    1.5000 - kLimitEps - kTolNumberPacketsLost * kDeltaT * kMaxElbowAcceleration;
+
+/**
+ * Computes the maximum joint velocity based on joint position
+ *
+ * @note The implementation is based on
+ * https://frankaemika.github.io/docs/control_parameters.html#limits-for-franka-research-3.
+ *
+ * @param[in] q joint position.
+ *
+ * @return Upper limits of joint velocity at the given joint position.
+ */
+inline std::array<double, 7> computeUpperLimitsJointVelocity(const std::array<double, 7>& q) {
+  return std::array<double, 7>{
+      std::min(2.62, std::max(0.0, -0.30 + std::sqrt(std::max(0.0, 12.0 * (2.75010 - q[0]))))) -
+          kJointVelocityLimitsTolerance[0],
+      std::min(2.62, std::max(0.0, -0.20 + std::sqrt(std::max(0.0, 5.17 * (1.79180 - q[1]))))) -
+          kJointVelocityLimitsTolerance[1],
+      std::min(2.62, std::max(0.0, -0.20 + std::sqrt(std::max(0.0, 7.00 * (2.90650 - q[2]))))) -
+          kJointVelocityLimitsTolerance[2],
+      std::min(2.62, std::max(0.0, -0.30 + std::sqrt(std::max(0.0, 8.00 * (-0.1458 - q[3]))))) -
+          kJointVelocityLimitsTolerance[3],
+      std::min(5.26, std::max(0.0, -0.35 + std::sqrt(std::max(0.0, 34.0 * (2.81010 - q[4]))))) -
+          kJointVelocityLimitsTolerance[4],
+      std::min(4.18, std::max(0.0, -0.35 + std::sqrt(std::max(0.0, 11.0 * (4.52050 - q[5]))))) -
+          kJointVelocityLimitsTolerance[5],
+      std::min(5.26, std::max(0.0, -0.35 + std::sqrt(std::max(0.0, 34.0 * (3.01960 - q[6]))))) -
+          kJointVelocityLimitsTolerance[6],
+  };
+}
+
+/**
+ * Computes the minimum joint velocity based on joint position
+ *
+ * @note The implementation is based on
+ * https://frankaemika.github.io/docs/control_parameters.html#limits-for-franka-research-3.
+ *
+ * @param[in] q joint position.
+ *
+ * @return Lower limits of joint velocity at the given joint position.
+ */
+inline std::array<double, 7> computeLowerLimitsJointVelocity(const std::array<double, 7>& q) {
+  return std::array<double, 7>{
+      std::max(-2.62, std::min(0.0, 0.30 - std::sqrt(std::max(0.0, 12.0 * (2.750100 + q[0]))))) +
+          kJointVelocityLimitsTolerance[0],
+      std::max(-2.62, std::min(0.0, 0.20 - std::sqrt(std::max(0.0, 5.17 * (1.791800 + q[1]))))) +
+          kJointVelocityLimitsTolerance[1],
+      std::max(-2.62, std::min(0.0, 0.20 - std::sqrt(std::max(0.0, 7.00 * (2.906500 + q[2]))))) +
+          kJointVelocityLimitsTolerance[2],
+      std::max(-2.62, std::min(0.0, 0.30 - std::sqrt(std::max(0.0, 8.00 * (3.048100 + q[3]))))) +
+          kJointVelocityLimitsTolerance[3],
+      std::max(-5.26, std::min(0.0, 0.35 - std::sqrt(std::max(0.0, 34.0 * (2.810100 + q[4]))))) +
+          kJointVelocityLimitsTolerance[4],
+      std::max(-4.18, std::min(0.0, 0.35 - std::sqrt(std::max(0.0, 11.0 * (-0.54092 + q[5]))))) +
+          kJointVelocityLimitsTolerance[5],
+      std::max(-5.26, std::min(0.0, 0.35 - std::sqrt(std::max(0.0, 34.0 * (3.019600 + q[6]))))) +
+          kJointVelocityLimitsTolerance[6],
+  };
+}
 
 /**
  * Limits the rate of an input vector of per-joint commands considering the maximum allowed
@@ -127,7 +190,8 @@ std::array<double, 7> limitRate(const std::array<double, 7>& max_derivatives,
  * @note
  * FCI filters must be deactivated to work properly.
  *
- * @param[in] max_velocity Maximum allowed velocity.
+ * @param[in] upper_limits_velocity Upper limits of allowed velocity.
+ * @param[in] lower_limits_velocity Lower limits of allowed velocity.
  * @param[in] max_acceleration Maximum allowed acceleration.
  * @param[in] max_jerk Maximum allowed jerk.
  * @param[in] commanded_velocity Commanded joint velocity of the current time step.
@@ -138,7 +202,8 @@ std::array<double, 7> limitRate(const std::array<double, 7>& max_derivatives,
  *
  * @return Rate-limited desired joint velocity.
  */
-double limitRate(double max_velocity,
+double limitRate(double upper_limits_velocity,
+                 double lower_limits_velocity,
                  double max_acceleration,
                  double max_jerk,
                  double commanded_velocity,
@@ -151,7 +216,8 @@ double limitRate(double max_velocity,
  * @note
  * FCI filters must be deactivated to work properly.
  *
- * @param[in] max_velocity Maximum allowed velocity.
+ * @param[in] upper_limits_velocity Upper limits of allowed velocity.
+ * @param[in] lower_limits_velocity Lower limits of allowed velocity.
  * @param[in] max_acceleration Maximum allowed acceleration.
  * @param[in] max_jerk Maximum allowed jerk.
  * @param[in] commanded_position Commanded joint position of the current time step.
@@ -163,7 +229,8 @@ double limitRate(double max_velocity,
  *
  * @return Rate-limited desired joint position.
  */
-double limitRate(double max_velocity,
+double limitRate(double upper_limits_velocity,
+                 double lower_limits_velocity,
                  double max_acceleration,
                  double max_jerk,
                  double commanded_position,
@@ -177,7 +244,8 @@ double limitRate(double max_velocity,
  * @note
  * FCI filters must be deactivated to work properly.
  *
- * @param[in] max_velocity Per-joint maximum allowed velocity.
+ * @param[in] upper_limits_velocity Per-joint upper limits of allowed velocity.
+ * @param[in] lower_limits_velocity Per-joint lower limits of allowed velocity.
  * @param[in] max_acceleration Per-joint maximum allowed acceleration.
  * @param[in] max_jerk Per-joint maximum allowed jerk.
  * @param[in] commanded_velocities Commanded joint velocity of the current time step.
@@ -188,7 +256,8 @@ double limitRate(double max_velocity,
  *
  * @return Rate-limited vector of desired joint velocities.
  */
-std::array<double, 7> limitRate(const std::array<double, 7>& max_velocity,
+std::array<double, 7> limitRate(const std::array<double, 7>& upper_limits_velocity,
+                                const std::array<double, 7>& lower_limits_velocity,
                                 const std::array<double, 7>& max_acceleration,
                                 const std::array<double, 7>& max_jerk,
                                 const std::array<double, 7>& commanded_velocities,
@@ -201,7 +270,8 @@ std::array<double, 7> limitRate(const std::array<double, 7>& max_velocity,
  * @note
  * FCI filters must be deactivated to work properly.
  *
- * @param[in] max_velocity Per-joint maximum allowed velocity.
+ * @param[in] upper_limits_velocity Per-joint upper limits of allowed velocity.
+ * @param[in] lower_limits_velocity Per-joint lower limits of allowed velocity.
  * @param[in] max_acceleration Per-joint maximum allowed acceleration.
  * @param[in] max_jerk Per-joint maximum allowed jerk.
  * @param[in] commanded_positions Commanded joint positions of the current time step.
@@ -213,7 +283,8 @@ std::array<double, 7> limitRate(const std::array<double, 7>& max_velocity,
  *
  * @return Rate-limited vector of desired joint positions.
  */
-std::array<double, 7> limitRate(const std::array<double, 7>& max_velocity,
+std::array<double, 7> limitRate(const std::array<double, 7>& upper_limits_velocity,
+                                const std::array<double, 7>& lower_limits_velocity,
                                 const std::array<double, 7>& max_acceleration,
                                 const std::array<double, 7>& max_jerk,
                                 const std::array<double, 7>& commanded_positions,

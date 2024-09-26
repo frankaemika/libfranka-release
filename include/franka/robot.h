@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Franka Emika GmbH
+// Copyright (c) 2023 Franka Robotics GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #pragma once
 
@@ -7,11 +7,11 @@
 #include <mutex>
 #include <string>
 
-#include <franka/command_types.h>
 #include <franka/control_types.h>
 #include <franka/duration.h>
 #include <franka/lowpass_filter.h>
 #include <franka/robot_state.h>
+#include <research_interface/robot/service_types.h>
 
 /**
  * @file robot.h
@@ -21,6 +21,8 @@
 namespace franka {
 
 class Model;
+
+class ActiveControlBase;
 
 /**
  * Maintains a network connection to the robot, provides the current robot state, gives access to
@@ -53,14 +55,14 @@ class Model;
  *
  * @anchor k-frame
  * @par Stiffness frame K
- * This frame describes the transformation from the end effector frame EE to the stiffness frame K.
- * The stiffness frame is used for Cartesian impedance control, and for measuring and applying
- * forces. The values set using Robot::setCartesianImpedance are used in the direction of the
- * stiffness frame. It can be set with Robot::setK.
- * This frame allows to modify the compliance behavior of the robot (e.g. to have a low
- * stiffness around a specific point which is not the end effector). The stiffness frame does not
- * affect where the robot will move to. The user should always command the desired end effector
- * frame (and not the desired stiffness frame).
+ * This frame describes the transformation from the end effector frame EE to the stiffness frame
+ * K. The stiffness frame is used for Cartesian impedance control, and for measuring and applying
+ * forces. The values set using Robot::setCartesianImpedance are used in the direction
+ * of the stiffness frame. It can be set with Robot::setK. This frame allows to modify the
+ * compliance behavior of the robot (e.g. to have a low stiffness around a specific point which
+ * is not the end effector). The stiffness frame does not affect where the robot will move to.
+ * The user should always command the desired end effector frame (and not the desired stiffness
+ * frame).
  */
 class Robot {
  public:
@@ -104,7 +106,7 @@ class Robot {
   /**
    * Closes the connection.
    */
-  ~Robot() noexcept;
+  virtual ~Robot() noexcept;
 
   /**
    * @name Motion generation and joint-level torque commands
@@ -156,7 +158,7 @@ class Robot {
    *
    * @param[in] control_callback Callback function providing joint-level torque commands.
    * See @ref callback-docs "here" for more details.
-   * @param[in] limit_rate True if rate limiting should be activated. True by default.
+   * @param[in] limit_rate True if rate limiting should be activated. False by default.
    * This could distort your motion!
    * @param[in] cutoff_frequency Cutoff frequency for a first order low-pass filter applied on
    * the user commanded signal. Set to franka::kMaxCutoffFrequency to disable.
@@ -170,7 +172,7 @@ class Robot {
    * @see Robot::Robot to change behavior if realtime priority cannot be set.
    */
   void control(std::function<Torques(const RobotState&, franka::Duration)> control_callback,
-               bool limit_rate = true,
+               bool limit_rate = false,
                double cutoff_frequency = kDefaultCutoffFrequency);
 
   /**
@@ -183,7 +185,7 @@ class Robot {
    * See @ref callback-docs "here" for more details.
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
-   * @param[in] limit_rate True if rate limiting should be activated. True by default.
+   * @param[in] limit_rate True if rate limiting should be activated. False by default.
    * This could distort your motion!
    * @param[in] cutoff_frequency Cutoff frequency for a first order low-pass filter applied on
    * the user commanded signal. Set to franka::kMaxCutoffFrequency to disable.
@@ -200,7 +202,7 @@ class Robot {
   void control(
       std::function<Torques(const RobotState&, franka::Duration)> control_callback,
       std::function<JointPositions(const RobotState&, franka::Duration)> motion_generator_callback,
-      bool limit_rate = true,
+      bool limit_rate = false,
       double cutoff_frequency = kDefaultCutoffFrequency);
 
   /**
@@ -213,7 +215,7 @@ class Robot {
    * See @ref callback-docs "here" for more details.
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
-   * @param[in] limit_rate True if rate limiting should be activated. True by default.
+   * @param[in] limit_rate True if rate limiting should be activated. False by default.
    * This could distort your motion!
    * @param[in] cutoff_frequency Cutoff frequency for a first order low-pass filter applied on
    * the user commanded signal. Set to franka::kMaxCutoffFrequency to disable.
@@ -230,7 +232,7 @@ class Robot {
   void control(
       std::function<Torques(const RobotState&, franka::Duration)> control_callback,
       std::function<JointVelocities(const RobotState&, franka::Duration)> motion_generator_callback,
-      bool limit_rate = true,
+      bool limit_rate = false,
       double cutoff_frequency = kDefaultCutoffFrequency);
 
   /**
@@ -243,7 +245,7 @@ class Robot {
    * See @ref callback-docs "here" for more details.
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
-   * @param[in] limit_rate True if rate limiting should be activated. True by default.
+   * @param[in] limit_rate True if rate limiting should be activated. False by default.
    * This could distort your motion!
    * @param[in] cutoff_frequency Cutoff frequency for a first order low-pass filter applied on
    * the user commanded signal. Set to franka::kMaxCutoffFrequency to disable.
@@ -260,7 +262,7 @@ class Robot {
   void control(
       std::function<Torques(const RobotState&, franka::Duration)> control_callback,
       std::function<CartesianPose(const RobotState&, franka::Duration)> motion_generator_callback,
-      bool limit_rate = true,
+      bool limit_rate = false,
       double cutoff_frequency = kDefaultCutoffFrequency);
 
   /**
@@ -273,7 +275,7 @@ class Robot {
    * See @ref callback-docs "here" for more details.
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
-   * @param[in] limit_rate True if rate limiting should be activated. True by default.
+   * @param[in] limit_rate True if rate limiting should be activated. False by default.
    * This could distort your motion!
    * @param[in] cutoff_frequency Cutoff frequency for a first order low-pass filter applied on
    * the user commanded signal. Set to franka::kMaxCutoffFrequency to disable.
@@ -290,7 +292,7 @@ class Robot {
   void control(std::function<Torques(const RobotState&, franka::Duration)> control_callback,
                std::function<CartesianVelocities(const RobotState&, franka::Duration)>
                    motion_generator_callback,
-               bool limit_rate = true,
+               bool limit_rate = false,
                double cutoff_frequency = kDefaultCutoffFrequency);
 
   /**
@@ -302,7 +304,7 @@ class Robot {
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
    * @param[in] controller_mode Controller to use to execute the motion.
-   * @param[in] limit_rate True if rate limiting should be activated. True by default.
+   * @param[in] limit_rate True if rate limiting should be activated. False by default.
    * This could distort your motion!
    * @param[in] cutoff_frequency Cutoff frequency for a first order low-pass filter applied on
    * the user commanded signal. Set to franka::kMaxCutoffFrequency to disable.
@@ -318,7 +320,7 @@ class Robot {
   void control(
       std::function<JointPositions(const RobotState&, franka::Duration)> motion_generator_callback,
       ControllerMode controller_mode = ControllerMode::kJointImpedance,
-      bool limit_rate = true,
+      bool limit_rate = false,
       double cutoff_frequency = kDefaultCutoffFrequency);
 
   /**
@@ -330,7 +332,7 @@ class Robot {
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
    * @param[in] controller_mode Controller to use to execute the motion.
-   * @param[in] limit_rate True if rate limiting should be activated. True by default.
+   * @param[in] limit_rate True if rate limiting should be activated. False by default.
    * This could distort your motion!
    * @param[in] cutoff_frequency Cutoff frequency for a first order low-pass filter applied on
    * the user commanded signal. Set to franka::kMaxCutoffFrequency to disable.
@@ -346,7 +348,7 @@ class Robot {
   void control(
       std::function<JointVelocities(const RobotState&, franka::Duration)> motion_generator_callback,
       ControllerMode controller_mode = ControllerMode::kJointImpedance,
-      bool limit_rate = true,
+      bool limit_rate = false,
       double cutoff_frequency = kDefaultCutoffFrequency);
 
   /**
@@ -358,7 +360,7 @@ class Robot {
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
    * @param[in] controller_mode Controller to use to execute the motion.
-   * @param[in] limit_rate True if rate limiting should be activated. True by default.
+   * @param[in] limit_rate True if rate limiting should be activated. False by default.
    * This could distort your motion!
    * @param[in] cutoff_frequency Cutoff frequency for a first order low-pass filter applied on
    * the user commanded signal. Set to franka::kMaxCutoffFrequency to disable.
@@ -374,7 +376,7 @@ class Robot {
   void control(
       std::function<CartesianPose(const RobotState&, franka::Duration)> motion_generator_callback,
       ControllerMode controller_mode = ControllerMode::kJointImpedance,
-      bool limit_rate = true,
+      bool limit_rate = false,
       double cutoff_frequency = kDefaultCutoffFrequency);
 
   /**
@@ -386,7 +388,7 @@ class Robot {
    * @param[in] motion_generator_callback Callback function for motion generation. See @ref
    * callback-docs "here" for more details.
    * @param[in] controller_mode Controller to use to execute the motion.
-   * @param[in] limit_rate True if rate limiting should be activated. True by default.
+   * @param[in] limit_rate True if rate limiting should be activated. False by default.
    * This could distort your motion!
    * @param[in] cutoff_frequency Cutoff frequency for a first order low-pass filter applied on
    * the user commanded signal. Set to franka::kMaxCutoffFrequency to disable.
@@ -402,7 +404,7 @@ class Robot {
   void control(std::function<CartesianVelocities(const RobotState&, franka::Duration)>
                    motion_generator_callback,
                ControllerMode controller_mode = ControllerMode::kJointImpedance,
-               bool limit_rate = true,
+               bool limit_rate = false,
                double cutoff_frequency = kDefaultCutoffFrequency);
 
   /**
@@ -443,7 +445,7 @@ class Robot {
    *
    * @see Robot::read for a way to repeatedly receive the robot state.
    */
-  RobotState readOnce();
+  virtual RobotState readOnce();
 
   /**
    * @name Commands
@@ -452,18 +454,6 @@ class Robot {
    * These functions should therefore not be called from within control or motion generator loops.
    * @{
    */
-
-  /**
-   * Returns the parameters of a virtual wall.
-   *
-   * @param[in] id ID of the virtual wall.
-   *
-   * @return Parameters of virtual wall.
-   *
-   * @throw CommandException if the Control reports an error.
-   * @throw NetworkException if the connection is lost, e.g. after a timeout.
-   */
-  VirtualWallCuboid getVirtualWall(int32_t id);
 
   /**
    * Changes the collision behavior.
@@ -640,34 +630,6 @@ class Robot {
                const std::array<double, 9>& load_inertia);
 
   /**
-   * Sets the cut off frequency for the given motion generator or controller.
-   *
-   * @deprecated Use franka::lowpassFilter() instead.
-   *
-   * Allowed input range for all the filters is between 1.0 Hz and 1000.0 Hz.
-   * If the value is set to maximum (1000Hz) then no filtering is done.
-   *
-   * @param[in] joint_position_filter_frequency Frequency at which the commanded joint
-   * position is cut off.
-   * @param[in] joint_velocity_filter_frequency Frequency at which the commanded joint
-   * velocity is cut off.
-   * @param[in] cartesian_position_filter_frequency Frequency at which the commanded
-   * Cartesian position is cut off.
-   * @param[in] cartesian_velocity_filter_frequency Frequency at which the commanded
-   * Cartesian velocity is cut off.
-   * @param[in] controller_filter_frequency Frequency at which the commanded torque is cut
-   * off.
-   *
-   * @throw CommandException if the Control reports an error.
-   * @throw NetworkException if the connection is lost, e.g. after a timeout.
-   */
-  [[deprecated("Use franka::lowpassFilter instead")]] void setFilters(
-      double joint_position_filter_frequency,
-      double joint_velocity_filter_frequency,
-      double cartesian_position_filter_frequency,
-      double cartesian_velocity_filter_frequency,
-      double controller_filter_frequency);
-  /**
    * Runs automatic error recovery on the robot.
    *
    * Automatic error recovery e.g. resets the robot after a collision occurred.
@@ -676,6 +638,81 @@ class Robot {
    * @throw NetworkException if the connection is lost, e.g. after a timeout.
    */
   void automaticErrorRecovery();
+
+  /**
+   * Starts a new torque controller
+   *
+   * @return unique_ptr of ActiveTorqueControl for the started motion
+   *
+   * @throw ControlException if an error related to torque control or motion generation
+   * occurred.
+   * @throw InvalidOperationException if a conflicting operation is already running.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
+   * @throw std::invalid_argument if joint-level torque commands are NaN or infinity.
+   */
+  virtual std::unique_ptr<ActiveControlBase> startTorqueControl();
+
+  /**
+   * Starts a new joint position motion generator
+   *
+   * @param control_type research_interface::robot::Move::ControllerMode control type for the
+   * operation
+   * @return unique_ptr of ActiveMotionGenerator for the started motion
+   *
+   * @throw ControlException if an error related to torque control or motion generation
+   * occurred.
+   * @throw InvalidOperationException if a conflicting operation is already running.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
+   * @throw std::invalid_argument if joint-level torque commands are NaN or infinity.
+   */
+  virtual std::unique_ptr<ActiveControlBase> startJointPositionControl(
+      const research_interface::robot::Move::ControllerMode& control_type);
+
+  /**
+   * Starts a new joint velocity motion generator
+   *
+   * @param control_type research_interface::robot::Move::ControllerMode control type for the
+   * operation
+   * @return unique_ptr of ActiveMotionGenerator for the started motion
+   * @throw ControlException if an error related to torque control or motion generation
+   * occurred.
+   * @throw InvalidOperationException if a conflicting operation is already running.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
+   * @throw std::invalid_argument if joint-level torque commands are NaN or infinity.
+   */
+  virtual std::unique_ptr<ActiveControlBase> startJointVelocityControl(
+      const research_interface::robot::Move::ControllerMode& control_type);
+
+  /**
+   * Starts a new cartesian position motion generator
+   *
+   * @param control_type research_interface::robot::Move::ControllerMode control type for the
+   * operation
+   * @return unique_ptr of ActiveMotionGenerator for the started motion
+   * @throw ControlException if an error related to torque control or motion generation
+   * occurred.
+   * @throw InvalidOperationException if a conflicting operation is already running.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
+   * @throw std::invalid_argument if joint-level torque commands are NaN or infinity.
+   */
+  virtual std::unique_ptr<ActiveControlBase> startCartesianPoseControl(
+      const research_interface::robot::Move::ControllerMode& control_type);
+
+  /**
+   * Starts a new cartesian velocity motion generator
+   *
+   * @param control_type research_interface::robot::Move::ControllerMode control type for the
+   * operation
+   * @return unique_ptr of ActiveMotionGenerator for the started motion
+   *
+   * @throw ControlException if an error related to torque control or motion generation
+   * occurred.
+   * @throw InvalidOperationException if a conflicting operation is already running.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
+   * @throw std::invalid_argument if joint-level torque commands are NaN or infinity.
+   */
+  virtual std::unique_ptr<ActiveControlBase> startCartesianVelocityControl(
+      const research_interface::robot::Move::ControllerMode& control_type);
 
   /**
    * Stops all currently running motions.
@@ -716,8 +753,39 @@ class Robot {
 
   class Impl;
 
+ protected:
+  /**
+   * Constructs a new Robot given a Robot::Impl. This enables unittests with Robot::Impl-Mocks.
+   *
+   * @param robot_impl Robot::Impl to use
+   */
+  Robot(std::shared_ptr<Impl> robot_impl);
+
+  /**
+   * Default constructor to enable mocking and testing.
+   */
+  Robot() = default;
+
  private:
-  std::unique_ptr<Impl> impl_;
+  /**
+   * Starts a new motion generator and controller
+   *
+   * @tparam T the franka control type
+   * @param control_mode defines the type of motion / control that shall be started
+   * @param controller_mode the controller-mode that shall be used
+   * @return unique_ptr of ActiveMotionGenerator for the started motion
+   *
+   * @throw ControlException if an error related to torque control or motion generation
+   occurred.
+   * @throw InvalidOperationException if a conflicting operation is already running.*
+   * @throw NetworkException if the connection is lost,e.g.after a timeout.
+   * @throw std::invalid_argument if joint - level torque commands are NaN or infinity.
+   */
+  template <typename T>
+  std::unique_ptr<ActiveControlBase> startControl(
+      const research_interface::robot::Move::ControllerMode& controller_type);
+
+  std::shared_ptr<Impl> impl_;
   std::mutex control_mutex_;
 };
 

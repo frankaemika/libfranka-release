@@ -1,9 +1,9 @@
-// Copyright (c) 2017 Franka Emika GmbH
+// Copyright (c) 2023 Franka Robotics GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #include "control_loop.h"
 
-#include <algorithm>
 #include <cerrno>
+#include <cmath>
 #include <cstring>
 #include <exception>
 #include <fstream>
@@ -22,38 +22,6 @@
 using namespace std::string_literals;  // NOLINT(google-build-using-namespace)
 
 namespace franka {
-
-namespace {
-
-template <typename T, size_t N>
-inline void checkFinite(const std::array<T, N>& array) {
-  if (!std::all_of(array.begin(), array.end(), [](double d) { return std::isfinite(d); })) {
-    throw std::invalid_argument("Commanding value is infinite or NaN.");
-  }
-}
-
-inline void checkElbow(const std::array<double, 2>& elbow) {
-  checkFinite(elbow);
-  if (!isValidElbow(elbow)) {
-    throw std::invalid_argument(
-        "Invalid elbow configuration given! Only +1 or -1 are allowed for the sign of the 4th "
-        "joint.");
-  }
-}
-
-inline void checkMatrix(const std::array<double, 16>& transform) {
-  checkFinite(transform);
-  if (!isHomogeneousTransformation(transform)) {
-    throw std::invalid_argument(
-        "libfranka: Attempt to set invalid transformation in motion generator. Has to be column "
-        "major!");
-  }
-}
-
-}  // anonymous namespace
-
-template <typename T>
-constexpr research_interface::robot::Move::Deviation ControlLoop<T>::kDefaultDeviation;
 
 template <typename T>
 ControlLoop<T>::ControlLoop(RobotControl& robot,
@@ -198,8 +166,10 @@ void ControlLoop<JointPositions>::convertMotion(
     }
   }
   if (limit_rate_) {
-    command->q_c = limitRate(kMaxJointVelocity, kMaxJointAcceleration, kMaxJointJerk, command->q_c,
-                             robot_state.q_d, robot_state.dq_d, robot_state.ddq_d);
+    command->q_c = limitRate(computeUpperLimitsJointVelocity(robot_state.q_d),
+                             computeLowerLimitsJointVelocity(robot_state.q_d),
+                             kMaxJointAcceleration, kMaxJointJerk, command->q_c, robot_state.q_d,
+                             robot_state.dq_d, robot_state.ddq_d);
   }
   checkFinite(command->q_c);
 }
@@ -217,8 +187,10 @@ void ControlLoop<JointVelocities>::convertMotion(
     }
   }
   if (limit_rate_) {
-    command->dq_c = limitRate(kMaxJointVelocity, kMaxJointAcceleration, kMaxJointJerk,
-                              command->dq_c, robot_state.dq_d, robot_state.ddq_d);
+    command->dq_c =
+        limitRate(computeUpperLimitsJointVelocity(robot_state.q_d),
+                  computeLowerLimitsJointVelocity(robot_state.q_d), kMaxJointAcceleration,
+                  kMaxJointJerk, command->dq_c, robot_state.dq_d, robot_state.ddq_d);
   }
   checkFinite(command->dq_c);
 }
