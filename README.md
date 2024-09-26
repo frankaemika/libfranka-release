@@ -1,3 +1,26 @@
+## libfranka (humble) - 0.13.6-1
+
+The packages in the `libfranka` repository were released into the `humble` distro by running `/usr/bin/bloom-release --new-track --rosdistro humble --track humble libfranka` on `Thu, 26 Sep 2024 14:40:43 -0000`
+
+The `libfranka` package was released.
+
+Version of package(s) in repository `libfranka`:
+
+- upstream repository: https://github.com/frankaemika/libfranka.git
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `null`
+- new version: `0.13.6-1`
+
+Versions of tools used:
+
+- bloom version: `0.12.0`
+- catkin_pkg version: `1.0.0`
+- rosdep version: `0.25.1`
+- rosdistro version: `0.9.1`
+- vcstools version: `0.1.42`
+
+
 ## libfranka (melodic) - 0.9.2-1
 
 The packages in the `libfranka` repository were released into the `melodic` distro by running `/usr/bin/bloom-release --rosdistro melodic --track melodic libfranka` on `Wed, 31 Aug 2022 15:14:02 -0000`
