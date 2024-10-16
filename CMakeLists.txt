@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-set(libfranka_VERSION 0.13.6)
+set(libfranka_VERSION 0.14.1)
 
 project(libfranka
   VERSION ${libfranka_VERSION}
@@ -37,6 +37,7 @@ set(THIRDPARTY_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty" CACHE PATH
 ## Dependencies
 find_package(Poco REQUIRED COMPONENTS Net Foundation)
 find_package(Eigen3 REQUIRED)
+find_package(pinocchio REQUIRED)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -90,6 +91,7 @@ add_library(franka SHARED
   src/robot_state.cpp
   src/vacuum_gripper.cpp
   src/vacuum_gripper_state.cpp
+  src/robot_model.cpp
 )
 add_library(Franka::Franka ALIAS franka)
 
@@ -125,6 +127,7 @@ target_link_libraries(franka PRIVATE
   Poco::Net
   Eigen3::Eigen3
   Threads::Threads
+  pinocchio::pinocchio
 )
 
 target_link_libraries(franka PUBLIC

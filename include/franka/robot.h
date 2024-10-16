@@ -10,14 +10,15 @@
 #include <franka/control_types.h>
 #include <franka/duration.h>
 #include <franka/lowpass_filter.h>
+#include <franka/robot_model_base.h>
 #include <franka/robot_state.h>
 #include <research_interface/robot/service_types.h>
+#include <franka/commands/get_robot_model_command.hpp>
 
 /**
  * @file robot.h
  * Contains the franka::Robot type.
  */
-
 namespace franka {
 
 class Model;
@@ -456,6 +457,14 @@ class Robot {
    */
 
   /**
+   * @throw CommandException if the Control reports an error.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
+   *
+   * @return std::string Provides the URDF model of the attached robot arm as json string
+   */
+  auto getRobotModel() -> std::string;
+
+  /**
    * Changes the collision behavior.
    *
    * Set separate torque and force boundaries for acceleration/deceleration and constant velocity
@@ -738,6 +747,9 @@ class Robot {
    * @throw NetworkException if the connection is lost, e.g. after a timeout.
    */
   Model loadModel();
+
+  // Loads the model library for the unittests mockRobotModel
+  Model loadModel(std::unique_ptr<RobotModelBase> robot_model);
 
   /**
    * Returns the software version reported by the connected server.
