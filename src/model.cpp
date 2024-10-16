@@ -1,13 +1,16 @@
 // Copyright (c) 2023 Franka Robotics GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #include <franka/model.h>
+#include <franka/robot_model.h>
 
-#include <sstream>
+#include <iostream>
 
 #include <Eigen/Core>
 
 #include <research_interface/robot/service_types.h>
 
+#include <fstream>
+#include <sstream>
 #include "model_library.h"
 #include "network.h"
 
@@ -21,7 +24,16 @@ Frame operator++(Frame& frame, int /* dummy */) noexcept {
   return original;
 }
 
-Model::Model(Network& network) : library_{new ModelLibrary(network)} {}
+Model::Model(Network& network, const std::string& urdf_model)
+    : library_{new ModelLibrary(network)} {
+  robot_model_ = std::make_unique<RobotModel>(urdf_model);
+}
+
+// for the tests
+Model::Model(Network& network, std::unique_ptr<RobotModelBase> robot_model)
+    : library_{new ModelLibrary(network)} {
+  robot_model_ = std::move(robot_model);
+}
 
 // Has to be declared here, as the ModelLibrary type is incomplete in the header
 Model::~Model() noexcept = default;
@@ -197,7 +209,7 @@ std::array<double, 49> franka::Model::mass(
     const std::array<double, 3>& F_x_Ctotal)  // NOLINT(readability-identifier-naming)
     const noexcept {
   std::array<double, 49> output;
-  library_->mass(q.data(), I_total.data(), m_total, F_x_Ctotal.data(), output.data());
+  robot_model_->mass(q, I_total, m_total, F_x_Ctotal, output);
 
   return output;
 }
@@ -216,8 +228,7 @@ std::array<double, 7> franka::Model::coriolis(
     const std::array<double, 3>& F_x_Ctotal)  // NOLINT(readability-identifier-naming)
     const noexcept {
   std::array<double, 7> output;
-  library_->coriolis(q.data(), dq.data(), I_total.data(), m_total, F_x_Ctotal.data(),
-                     output.data());
+  robot_model_->coriolis(q, dq, I_total, m_total, F_x_Ctotal, output);
 
   return output;
 }
@@ -238,7 +249,7 @@ std::array<double, 7> franka::Model::gravity(
     const std::array<double, 3>& F_x_Ctotal,  // NOLINT(readability-identifier-naming)
     const std::array<double, 3>& gravity_earth) const noexcept {
   std::array<double, 7> output;
-  library_->gravity(q.data(), gravity_earth.data(), m_total, F_x_Ctotal.data(), output.data());
+  robot_model_->gravity(q, gravity_earth, m_total, F_x_Ctotal, output);
 
   return output;
 }
