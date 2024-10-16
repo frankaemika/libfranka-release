@@ -46,11 +46,11 @@ tracks:
     patches: null
     release_inc: '2'
     release_repo_url: null
-    release_tag: 0.13.6
+    release_tag: 0.14.2
     ros_distro: humble
     vcs_type: git
     vcs_uri: https://github.com/frankaemika/libfranka.git
-    version: 0.13.6
+    version: 0.14.2
   kinetic:
     actions:
     - bloom-export-upstream :{vcs_local_uri} :{vcs_type} --tag :{release_tag} --display-uri
