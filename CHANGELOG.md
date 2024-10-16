@@ -1,11 +1,11 @@
 # CHANGELOG
 
-## 0.13.6 - 2024-09-05
+## 0.14.0 - 2024-09-05
 
-Requires Franka Research 3 system version >= 5.5.0
+Requires Franka Research 3 system version >= 5.7.0
 
- * Hotfix: set realtime scheduling for active control
- * Hotfix: Fix readOnce for active control 
+ * Bump libfranka-common version compatible with 5.7.0
+ * Compute dynamic robot parameters with Pinocchio library.
 
 ## 0.13.4 - 2024-09-05
 
@@ -23,7 +23,6 @@ Requires Franka Research 3 system version >= 5.5.0
 ## 0.13.2 - 2023-12-04
 
  * Hotfix: (temporary-workaround) for max-path-pose-deviation in ExternalMode for active control.
-
 
 ## 0.13.1 - 2023-11-30
 
