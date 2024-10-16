@@ -44,7 +44,7 @@ tracks:
     last_version: 0.13.6
     name: libfranka
     patches: null
-    release_inc: '1'
+    release_inc: '2'
     release_repo_url: null
     release_tag: 0.13.6
     ros_distro: humble
