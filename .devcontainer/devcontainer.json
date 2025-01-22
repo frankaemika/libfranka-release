@@ -4,22 +4,22 @@
     "service": "libfranka_project",
     "workspaceFolder": "/workspaces",
     "remoteUser": "user",
-    "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
-    },
+    "initializeCommand": "echo \"USER_UID=$(id -u $USER)\nUSER_GID=$(id -g $USER)\" > .devcontainer/.env",
     "customizations": {
         "vscode": {
             "extensions": [
                 "ms-python.python",
-                "bungcip.better-toml",
+                "tamasfe.even-better-toml",
                 "ms-vscode.cpptools",
-                "ms-vscode.cpptools-extension-pack",
-                "ms-vscode.cmake-tools",
                 "xaver.clang-format",
-                "josetr.cmake-language-support-vscode",
                 "twxs.cmake",
-                "cheshirekow.cmake-format"
-            ]
+                "cheshirekow.cmake-format",
+                "ms-azuretools.vscode-docker"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.profiles.linux": { "bash": { "path": "/bin/bash" } }
+            }
         }
     }
 }

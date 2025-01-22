@@ -28,12 +28,22 @@ class Network {
  public:
   Network(const std::string& franka_address,
           uint16_t franka_port,
-          std::chrono::milliseconds tcp_timeout = std::chrono::seconds(60),
+          std::chrono::milliseconds tcp_timeout = std::chrono::seconds(1),
           std::chrono::milliseconds udp_timeout = std::chrono::seconds(1),
           std::tuple<bool, int, int, int> tcp_keepalive = std::make_tuple(true, 1, 3, 1));
   ~Network();
 
   uint16_t udpPort() const noexcept;
+
+  /**
+   * @brief Checks if the TCP socket is alive.
+   *
+   * This function determines whether the TCP socket is currently active and able to communicate.
+   * It is needed by the method Robot::Impl::cancelMotion().
+   *
+   * @return true if the TCP socket is alive, false otherwise.
+   */
+  bool isTcpSocketAlive() const noexcept;
 
   template <typename T>
   T udpBlockingReceive();
@@ -133,6 +143,7 @@ T Network::udpBlockingReceiveUnsafe() try {
 
   return *reinterpret_cast<T*>(buffer.data());
 } catch (const Poco::Exception& e) {
+  tcp_socket_.shutdown();
   using namespace std::string_literals;  // NOLINT(google-build-using-namespace)
   throw NetworkException("libfranka: UDP receive: "s + e.what());
 }
