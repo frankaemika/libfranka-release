@@ -180,8 +180,9 @@ pipeline {
               dir("build-release.${env.DISTRO}") {
                 catchError(buildResult: env.UNSTABLE, stageResult: env.UNSTABLE) {
                   sh 'cpack'
-                  fePublishDebian('*.deb', 'futuretech-common', "deb.distribution=${env.DISTRO};deb.component=main;deb.architecture=amd64")
+                  fePublishDebian('*.deb', 'fci', "deb.distribution=${env.DISTRO};deb.component=main;deb.architecture=amd64")
                   dir('doc') {
+                    sh 'mv docs/*/html/ html/'
                     sh 'tar cfz ../libfranka-docs.tar.gz html'
                   }
                   sh "rename -e 's/(.tar.gz|.deb)\$/-${env.DISTRO}\$1/' *.deb *.tar.gz"
