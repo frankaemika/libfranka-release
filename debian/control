@@ -1,0 +1,12 @@
+Source: ros-humble-libfranka
+Section: misc
+Priority: optional
+Maintainer: Franka Robotics GmbH <support@franka.de>
+Build-Depends: debhelper (>= 9.0.0), cmake, libeigen3-dev, libfmt-dev, libpoco-dev, ros-humble-pinocchio, ros-humble-ros-workspace
+Homepage: http://wiki.ros.org/libfranka
+Standards-Version: 3.9.2
+
+Package: ros-humble-libfranka
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libfmt-dev, libpoco-dev, ros-humble-pinocchio, ros-humble-ros-workspace
+Description: libfranka is a C++ library for Franka Robotics research robots
