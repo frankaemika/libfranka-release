@@ -41,7 +41,7 @@ tracks:
     - git-bloom-generate -y rosrpm --prefix release/:{ros_distro} :{ros_distro} -i
       :{release_inc} --os-name rhel
     devel_branch: null
-    last_version: 0.14.2
+    last_version: 0.15.0
     name: libfranka
     patches: null
     release_inc: '1'
