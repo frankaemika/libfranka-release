@@ -1,3 +1,26 @@
+## libfranka (humble) - 0.15.0-1
+
+The packages in the `libfranka` repository were released into the `humble` distro by running `/usr/bin/bloom-release -e -r humble -t humble libfranka` on `Wed, 22 Jan 2025 14:59:39 -0000`
+
+The `libfranka` package was released.
+
+Version of package(s) in repository `libfranka`:
+
+- upstream repository: https://github.com/frankaemika/libfranka.git
+- release repository: https://github.com/frankaemika/libfranka-release.git
+- rosdistro version: `0.13.6-1`
+- old version: `0.14.2-1`
+- new version: `0.15.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.12.0`
+- catkin_pkg version: `1.0.0`
+- rosdep version: `0.25.1`
+- rosdistro version: `1.0.1`
+- vcstools version: `0.1.42`
+
+
 ## libfranka (humble) - 0.14.2-1
 
 The packages in the `libfranka` repository were released into the `humble` distro by running `/usr/bin/bloom-release --rosdistro humble --track humble libfranka --edit` on `Wed, 16 Oct 2024 13:30:59 -0000`
